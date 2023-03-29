@@ -49,7 +49,7 @@ class User extends Authenticatable
     ];
 
     protected $appends = [
-        'full_name', 'role'
+        'full_name', 'role', 'formal_full_name', 'view_avatar'
     ];
 
     public function getFullNameAttribute()
@@ -57,6 +57,18 @@ class User extends Authenticatable
         return $this->middle_name ?
             $this->first_name.' '.$this->middle_name[0].'. '.$this->last_name :
             $this->first_name.' '.$this->last_name;
+    }
+
+    public function getFormalFullNameAttribute()
+    {
+        return $this->middle_name ?
+            $this->last_name.', '.$this->first_name.' '.$this->middle_name :
+            $this->last_name.', '.$this->first_name;
+    }
+
+    public function getViewAvatarAttribute()
+    {
+        return $this->avatar ? Storage::link($this->avatar) : '../../default.jpg';
     }
 
     public function getRoleAttribute()

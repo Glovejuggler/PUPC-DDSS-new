@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Models\Requirement;
+use App\Models\StudentFile;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -17,7 +19,7 @@ class StudentController extends Controller
         // dd(Student::orderBy('year','desc')->orderBy('first_name')->paginate(50)->groupBy('year'));
         if ($request->wantsJson()) {
             return Student::query()
-                            ->filter($request->only(['search', 'sortBy']))
+                            ->filter($request->only(['search', 'sortBy', 'filterBy']))
                             ->orderBy('year','desc')
                             ->orderBy('first_name')
                             ->paginate(40)
@@ -26,12 +28,13 @@ class StudentController extends Controller
 
         return inertia('Students/Index', [
             'students' => Student::query()
-                                    ->filter($request->only(['search', 'sortBy']))
+                                    ->filter($request->only(['search', 'sortBy', 'filterBy']))
                                     ->orderBy('year','desc')
                                     ->orderBy('first_name')
                                     ->paginate(40)
                                     ->withQueryString(),
-            'filters' => $request->only(['search', 'sortBy'])
+            'filters' => $request->only(['search', 'sortBy', 'filterBy']),
+            'requirements' => Requirement::all()
         ]);
     }
 
@@ -78,8 +81,12 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
+        $submitted = StudentFile::where('student_id',$student->id)->pluck('type');
+
         return inertia('Students/Show', [
-            'student' => $student
+            'student' => Student::with('files')->find($student->id),
+            'requirements' => Requirement::all()->groupBy('category'),
+            'reqops' => Requirement::whereNotIn('name',$submitted)->get()
         ]);
     }
 

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\File;
 use App\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Folder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -75,9 +77,20 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
-        //
+        $user = User::find($id);
+        $files = File::with('user')->where('user_id', $user->id)->paginate(24)->withQueryString();
+
+        if ($request->wantsJson()) {
+            return $files;
+        }
+
+        return inertia('Users/Show', [
+            'user' => $user,
+            'files' => $files,
+            'roles' => Role::all()
+        ]);
     }
 
     /**
@@ -100,7 +113,35 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // dd($request);
+        $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'birthday' => 'date|required',
+            'address' => 'required',
+            'contact' => 'required',
+            'role_id' => 'required',
+            'email' => 'email|required',
+        ]);
+
+        User::find($id)->update([
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'birthday' => Carbon::parse($request->birthday),
+            'address' => $request->address,
+            'contact' => $request->contact,
+            'role_id' => $request->role_id,
+            'email' => $request->email,
+        ]);
+
+        if ($request->password) {
+            User::find($id)->update([
+                'password' => Hash::make($request->password)
+            ]);
+        }
+
+        return redirect()->back();
     }
 
     /**

@@ -31,7 +31,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer"
+                <tr @click="this.$inertia.get(route('users.show', user))"
+                    class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer"
                     v-for="user in users">
                     <td class="py-2 pl-4">{{ user.full_name }}</td>
                     <td class="py-2">{{ user.role }}</td>

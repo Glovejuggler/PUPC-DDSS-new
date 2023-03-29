@@ -14,7 +14,7 @@ const showingNavigationDropdown = ref(false);
         <div
             class="inset-y-0 left-0 fixed bg-gray-800 dark:bg-zinc-900 w-64 lg:flex flex-col hidden py-6 duration-300 ease-in-out">
             <div class="text-white px-4 font-bold text-lg">
-                File manager
+                PUPC
             </div>
             <div class="mt-8 text-white space-y-3">
                 <Link :href="route('files')" class="px-6 py-2 hover:bg-white/10 flex w-[90%] rounded-r-full"
@@ -32,13 +32,12 @@ const showingNavigationDropdown = ref(false);
             </div>
             <hr class="opacity-25 mt-6">
             <div class="mt-6 text-white px-3 space-y-3">
-                <Link :href="route('users.index')"
-                    :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('users.index') }"
+                <Link :href="route('users.index')" :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('users.*') }"
                     class="px-4 py-2 hover:bg-white/10 flex rounded-lg">
                 Users
                 </Link>
                 <Link :href="route('students.index')"
-                    :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('students.index') }"
+                    :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('students.*') }"
                     class="px-4 py-2 hover:bg-white/10 flex rounded-lg">
                 Students
                 </Link>

@@ -2,7 +2,7 @@
     <Head title="Students" />
 
     <div
-        class="px-4 py-2 border-b dark:border-b-black/50 flex justify-between sticky top-0 bg-white dark:bg-zinc-900 z-40 duration-300 ease-in-out">
+        class="px-4 py-2 border-b dark:border-b-black/50 flex justify-between items-center sticky top-0 bg-white dark:bg-zinc-900 z-40 duration-300 ease-in-out">
         <Dropdown align="left">
             <template #trigger>
                 <button
@@ -32,7 +32,11 @@
         </div>
 
         <div>
-
+            <select id="filterBy" v-model="form.filterBy"
+                class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm w-full">
+                <option value="">All</option>
+                <option v-for="requirement in requirements" :value="requirement.name">{{ requirement.name }}</option>
+            </select>
         </div>
     </div>
 
@@ -41,15 +45,16 @@
         <table class="w-full dark:text-white text-left select-none">
             <thead class="border-b dark:border-white/30 sticky top-14 bg-white dark:bg-zinc-900 duration-300 ease-in-out">
                 <tr>
-                    <th class="text-xs font-bold py-3 pl-4 cursor-pointer" @click="form.sortBy = form.sortBy === 0 ? 1 : 0">
+                    <th class="text-xs font-bold py-3 pl-4 cursor-pointer" @click="form.sortBy = form.sortBy === 1 ? 2 : 1">
                         <span class="mr-3">Name</span>
                         <i class="fa-solid"
-                            :class="form.sortBy === 0 ? 'fa-arrow-up' : form.sortBy === 1 ? 'fa-arrow-down' : ''"></i>
+                            :class="form.sortBy === 2 ? 'fa-arrow-up' : form.sortBy === 1 ? 'fa-arrow-down' : ''"></i>
                     </th>
-                    <th class="text-xs font-bold py-3 cursor-pointer" @click="form.sortBy = form.sortBy === 2 ? 3 : 2">
+                    <th class="text-xs font-bold py-3 cursor-pointer"
+                        @click="form.sortBy = form.sortBy === 0 || form.sortBy === undefined ? 3 : 0">
                         <span class="mr-3">Year</span>
                         <i class="fa-solid"
-                            :class="form.sortBy === 2 ? 'fa-arrow-up' : form.sortBy === 3 ? 'fa-arrow-down' : ''"></i>
+                            :class="form.sortBy === 3 ? 'fa-arrow-up' : form.sortBy === 0 || form.sortBy === undefined ? 'fa-arrow-down' : ''"></i>
                     </th>
                 </tr>
             </thead>
@@ -74,31 +79,31 @@
                 <div
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/4 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">New student</span>
-                    <form @submit.prevent="form.post(route('students.store'), {
+                    <form @submit.prevent="newform.post(route('students.store'), {
                         onSuccess: () => this.showNewStudentModal = errors.length ? true : false,
                         preserveState: true,
                         preserveScroll: true,
                     })">
                         <div>
                             <BreezeLabel for="first_name" value="First name" />
-                            <BreezeInput id="first_name" type="text" class="mt-1 block w-full" v-model="form.first_name"
+                            <BreezeInput id="first_name" type="text" class="mt-1 block w-full" v-model="newform.first_name"
                                 required autofocus />
                         </div>
 
                         <div class="mt-4">
                             <BreezeLabel for="middle_name" value="Middle name" />
                             <BreezeInput id="middle_name" type="text" class="mt-1 block w-full"
-                                v-model="form.middle_name" />
+                                v-model="newform.middle_name" />
                         </div>
 
                         <div class="mt-4">
                             <BreezeLabel for="last_name" value="Last name" />
-                            <BreezeInput id="last_name" type="text" class="mt-1 block w-full" v-model="form.last_name" />
+                            <BreezeInput id="last_name" type="text" class="mt-1 block w-full" v-model="newform.last_name" />
                         </div>
 
                         <div class="mt-4">
                             <BreezeLabel for="year" value="Year" />
-                            <select id="year" v-model="form.year" required
+                            <select id="year" v-model="newform.year" required
                                 class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm mt-2 w-full">
                                 <option value="" selected hidden disabled>Select year</option>
                                 <option v-for="year in years" :value="year">{{ year }}</option>
@@ -146,6 +151,7 @@ export default {
             form: {
                 search: this.filters.search,
                 sortBy: this.filters.sortBy,
+                filterBy: this.filters.filterBy ?? '',
             },
             visibleStudents: this.students,
         }
@@ -153,7 +159,8 @@ export default {
     props: {
         students: Object,
         errors: Object,
-        filters: Object
+        filters: Object,
+        requirements: Object
     },
     methods: {
         loadMoreStudents() {
@@ -170,14 +177,14 @@ export default {
         }
     },
     setup() {
-        const form = useForm({
+        const newform = useForm({
             first_name: '',
             middle_name: '',
             last_name: '',
             year: ''
         })
 
-        return { form }
+        return { newform }
     },
     computed: {
         years() {

@@ -19,7 +19,7 @@ class CreateStudentFilesTable extends Migration
             $table->string('type');
             $table->string('path');
             $table->string('name');
-            $table->string('student_id');
+            $table->smallInteger('student_id');
             $table->timestamps();
         });
     }

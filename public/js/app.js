@@ -20005,7 +20005,7 @@ var _hoisted_1 = {
 };
 var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "text-white px-4 font-bold text-lg"
-}, " File manager ", -1 /* HOISTED */);
+}, " PUPC ", -1 /* HOISTED */);
 var _hoisted_3 = {
   "class": "mt-8 text-white space-y-3"
 };
@@ -20107,7 +20107,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   })]), _hoisted_6, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["Link"], {
     href: _ctx.route('users.index'),
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([{
-      'dark:bg-zinc-700 bg-black/20': _ctx.route().current('users.index')
+      'dark:bg-zinc-700 bg-black/20': _ctx.route().current('users.*')
     }, "px-4 py-2 hover:bg-white/10 flex rounded-lg"])
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
@@ -20117,7 +20117,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   }, 8 /* PROPS */, ["href", "class"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["Link"], {
     href: _ctx.route('students.index'),
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([{
-      'dark:bg-zinc-700 bg-black/20': _ctx.route().current('students.index')
+      'dark:bg-zinc-700 bg-black/20': _ctx.route().current('students.*')
     }, "px-4 py-2 hover:bg-white/10 flex rounded-lg"])
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
@@ -66322,6 +66322,10 @@ var map = {
 		"./resources/js/Pages/Users/Index.vue",
 		"resources_js_Pages_Users_Index_vue"
 	],
+	"./Users/Show.vue": [
+		"./resources/js/Pages/Users/Show.vue",
+		"resources_js_Pages_Users_Show_vue"
+	],
 	"./Welcome.vue": [
 		"./resources/js/Pages/Welcome.vue",
 		"resources_js_Pages_Welcome_vue"
@@ -66475,7 +66479,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_Pages_Auth_ConfirmPassword_vue":1,"resources_js_Pages_Auth_ForgotPassword_vue":1,"resources_js_Pages_Auth_Login_vue":1,"resources_js_Pages_Auth_Register_vue":1,"resources_js_Pages_Auth_ResetPassword_vue":1,"resources_js_Pages_Auth_VerifyEmail_vue":1,"resources_js_Pages_Dashboard_vue":1,"resources_js_Pages_Files_Index_vue":1,"resources_js_Pages_Requirements_Index_vue":1,"resources_js_Pages_Students_Index_vue":1,"resources_js_Pages_Students_Show_vue":1,"resources_js_Pages_Users_Index_vue":1,"resources_js_Pages_Welcome_vue":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_Pages_Auth_ConfirmPassword_vue":1,"resources_js_Pages_Auth_ForgotPassword_vue":1,"resources_js_Pages_Auth_Login_vue":1,"resources_js_Pages_Auth_Register_vue":1,"resources_js_Pages_Auth_ResetPassword_vue":1,"resources_js_Pages_Auth_VerifyEmail_vue":1,"resources_js_Pages_Dashboard_vue":1,"resources_js_Pages_Files_Index_vue":1,"resources_js_Pages_Requirements_Index_vue":1,"resources_js_Pages_Students_Index_vue":1,"resources_js_Pages_Students_Show_vue":1,"resources_js_Pages_Users_Index_vue":1,"resources_js_Pages_Users_Show_vue":1,"resources_js_Pages_Welcome_vue":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};

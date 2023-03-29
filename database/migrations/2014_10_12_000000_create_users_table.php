@@ -23,6 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('contact', 20);
             $table->smallInteger('role_id')->nullable();
             $table->string('email')->unique();
+            $table->string('avatar')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

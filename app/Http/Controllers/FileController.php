@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\Folder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
 {
@@ -151,6 +152,16 @@ class FileController extends Controller
      */
     public function rename(Request $request, $id)
     {
-        dd($request);
+        dd($request, File::find($id));
+    }
+
+    /**
+     * Downloads file
+     */
+    public function download($id)
+    {
+        $file = File::find($id);
+        // dd(Storage::exists(Storage::url($file->path)), $file->path, Storage::url($file->path));
+        return Storage::disk('public')->download($file->path, $file->name);
     }
 }

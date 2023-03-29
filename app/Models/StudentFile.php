@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class StudentFile extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'category',
+        'type',
+        'path',
+        'name',
+        'student_id'
+    ];
 }

@@ -39,7 +39,17 @@ class RequirementController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'category' => 'required',
+            'name' => 'required'
+        ]);
+
+        Requirement::create([
+            'category' => $request->category,
+            'name' => $request->name,
+        ]);
+
+        return redirect()->back();
     }
 
     /**

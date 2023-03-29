@@ -30,15 +30,10 @@
         <div class="flex flex-row-reverse space-x-2">
             <i @click="toggleView()" :class="view === 'grid' ? 'fa-list' : 'fa-grip'" id="viewToggle"
                 class="fa-solid dark:text-white dark:hover:bg-white/10 hover:bg-black/10 inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer"></i>
-            <i v-if="selectedFile" @mousedown.prevent="fileOptions = !fileOptions"
-                class="fa-solid fa-ellipsis-vertical dark:text-white dark:hover:bg-white/10 hover:bg-black/10 inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer"></i>
-            <div v-show="this.fileOptions && this.selectedFile"
-                class="w-48 p-4 bg-white dark:bg-zinc-800 shadow-md shadow-black/30 rounded-lg absolute translate-y-12">
-            </div>
         </div>
     </div>
 
-    <!-- Grid view -->
+    <!-- Files -->
     <InfiniteScroll :loadMore="loadMoreFiles">
         <div v-if="view === 'grid'" class="pb-8">
             <section v-if="folders.length">
@@ -50,7 +45,7 @@
                     <div v-for="(folder) in folders" @click.self="$event.target.focus()" tabindex="-1"
                         @contextmenu.prevent="contextMenu" @focusin="folderSelect(folder)" @focusout="unselect"
                         @dblclick.prevent="this.$inertia.get(route('files', folder.id))"
-                        class="w-full group cursor-pointer select-none p-4 border border-black/30 dark:border-zinc-900 focus:bg-blue-100 hover:bg-black/10 dark:hover:bg-white/5 dark:focus:bg-blue-900 dark:bg-zinc-900 dark:text-white rounded-lg text-sm text-ellipsis overflow-hidden flex items-center">
+                        class="w-full group cursor-pointer select-none p-4 border border-black/30 dark:border-zinc-900 focus:bg-blue-100 focus:ring-blue-700 focus:ring-1 hover:bg-black/10 dark:hover:bg-white/5 dark:focus:bg-blue-900 dark:bg-zinc-900 dark:text-white rounded-lg text-sm text-ellipsis overflow-hidden flex items-center">
                         <i class="fa-solid fa-folder w-8 text-xl mr-2 text-gray-800 dark:text-white"></i>{{ folder.name }}
                     </div>
                 </div>
@@ -65,7 +60,7 @@
                     <div v-for="(file) in visibleFiles.data" @contextmenu.prevent="contextMenu"
                         @click="$event.target.focus()" tabindex="-1" @focusin="fileSelect(file)" @focusout="unselect"
                         :id="`file${file.id}`"
-                        class="w-full h-56 overflow-hidden border border-black/30 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm relative select-none cursor-pointer">
+                        class="w-full h-56 overflow-hidden border border-black/30 focus:ring-blue-700 focus:ring-1 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm relative select-none cursor-pointer">
                         <div class="w-full h-48 overflow-hidden">
                             <img :src="`../storage/${file.img_source}`"
                                 class="object-cover h-48 w-full bg-white dark:bg-zinc-900" alt="">
@@ -91,9 +86,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr tabindex="-1" @contextmenu.prevent=""
+                    <tr tabindex="-1" @contextmenu.prevent="contextMenu"
                         class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 focus:bg-blue-100 dark:focus:bg-blue-900 cursor-pointer"
-                        v-for="folder in folders" @click="$event.target.focus()" @focusin="folderSelect(file)"
+                        v-for="folder in folders" @click="$event.target.focus()" @focusin="folderSelect(folder)"
                         @focusout="unselect" @dblclick.prevent="this.$inertia.get(route('files', folder.id))">
                         <td class="py-2 pl-4"><i class="fa-solid fa-folder w-6"></i>{{ folder.name }}</td>
                         <td class="py-2">{{
@@ -103,7 +98,7 @@
                         <td class="py-2">{{ formatDate(folder.created_at) }}</td>
                         <td class="py-2 pr-4">—</td>
                     </tr>
-                    <tr tabindex="-1" @contextmenu.prevent=""
+                    <tr tabindex="-1" @contextmenu.prevent="contextMenu"
                         class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 focus:bg-blue-100 dark:focus:bg-blue-900 cursor-pointer"
                         v-for="file in visibleFiles.data" @click="$event.target.focus()" @focusin="fileSelect(file)"
                         @focusout="unselect">
@@ -185,9 +180,9 @@
         <div v-show="context" id="context"
             class="bg-white dark:bg-zinc-800 rounded-lg shadow-md shadow-black/30 fixed w-48 z-50 py-2 origin-top">
             <div v-if="selectedFile">
-                <div @mousedown.prevent=""
-                    class="dark:text-white px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"><i
-                        class="fa-solid fa-download w-8"></i>Download</div>
+                <a :href="route('files.download', this.selectedFile.id)" @mousedown.prevent=""
+                    class="dark:text-white flex px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"><i
+                        class="fa-solid fa-download w-8"></i>Download</a>
                 <div @mousedown.prevent="renameFile(selectedFile)"
                     class="dark:text-white px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"><i
                         class="fa-solid fa-file-pen w-8"></i>Rename</div>
@@ -226,12 +221,10 @@
                 <div
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
                     <span class="font-bold text-lg block mb-2">Rename</span>
-                    <form @submit.prevent="renameFileForm.put(route('files.rename', this.temp))">
+                    <form @submit.prevent="renameFileForm.put(route('files.rename', this.temp.id))">
                         <div class="mt-4">
-                            <Input type="text" class="w-full text-xs" :value="this.selectedFile.name"
-                                v-model="renameFileForm.name" autofocus
+                            <Input type="text" class="w-full text-xs" name="name" v-model="renameFileForm.name" autofocus
                                 onfocus="this.setSelectionRange(0, this.value.lastIndexOf('.'))" />
-                            <span v-if="errors.name">{{ errors.name }}</span>
                         </div>
                         <div class="flex justify-end mt-6">
                             <button class="mx-2 text-sm hover:underline" type="button"
@@ -269,7 +262,6 @@ export default {
             showAddFolderModal: false,
             selectedFolder: '',
             selectedFile: '',
-            fileOptions: false,
             visibleFiles: this.files,
             context: false,
             showRenameFileModal: false,
@@ -318,11 +310,21 @@ export default {
         },
         contextMenu(event) {
             this.context = true
-            document.querySelector('#context').style.top = `${event.clientY}px`
-            document.querySelector('#context').style.left = `${event.clientX}px`
+            if (event.clientX < window.innerWidth - 192) {
+                document.querySelector('#context').style.left = `${event.clientX}px`
+            } else {
+                document.querySelector('#context').style.left = `${event.clientX - 192}px`
+            }
+
+            if (event.clientY < window.innerHeight - 160) {
+                document.querySelector('#context').style.top = `${event.clientY}px`
+            } else {
+                document.querySelector('#context').style.top = `${event.clientY - 160}px`
+            }
         },
         renameFile() {
-            this.temp = this.selectedFile.id
+            this.temp = this.selectedFile
+            this.renameFileForm.name = this.temp.name
             this.showRenameFileModal = true
         },
         renameFolder() {

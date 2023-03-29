@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\StudentFile;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Student extends Model
 {
@@ -17,7 +18,8 @@ class Student extends Model
     ];
 
     protected $appends = [
-        'full_name'
+        'full_name',
+        'formal_full_name'
     ];
 
     public function getFullNameAttribute()
@@ -25,6 +27,13 @@ class Student extends Model
         return $this->middle_name ?
             $this->first_name.' '.$this->middle_name[0].'. '.$this->last_name :
             $this->first_name.' '.$this->last_name;
+    }
+
+    public function getFormalFullNameAttribute()
+    {
+        return $this->middle_name ?
+            $this->last_name.', '.$this->first_name.' '.$this->middle_name :
+            $this->last_name.', '.$this->first_name;
     }
 
     // Filters
@@ -40,10 +49,20 @@ class Student extends Model
             if ($sort === '1') {
                 $query->orderBy('first_name', 'desc');
             } elseif ($sort === '2') {
-                $query->orderBy('year', 'asc');
+                $query->orderBy('first_name', 'asc');
             } elseif ($sort === '3') {
-                $query->orderBy('year', 'desc');
+                $query->orderBy('year', 'asc');
             }
+        })->when($filters['filterBy'] ?? null, function ($query, $filterBy) {
+            $query->whereHas('files', function ($query) use($filterBy) {
+                $query->where('type', $filterBy);
+            });
         });
+    }
+
+    // Relations
+    public function files()
+    {
+        return $this->hasMany(StudentFile::class);
     }
 }
