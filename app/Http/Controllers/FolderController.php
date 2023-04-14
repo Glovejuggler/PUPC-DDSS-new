@@ -85,9 +85,22 @@ class FolderController extends Controller
      * @param  \App\Models\Folder  $folder
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Folder $folder)
+    public function update(Request $request, $id)
     {
-        //
+        
+    }
+
+    /**
+     * Renames folder
+     */
+    public function rename(Request $request, $id)
+    {
+        $folder = Folder::find($id);
+        $folder->update([
+            'name' => $request->name
+        ]);
+
+        return redirect()->back();
     }
 
     /**
@@ -96,8 +109,33 @@ class FolderController extends Controller
      * @param  \App\Models\Folder  $folder
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Folder $folder)
+    public function destroy($id)
     {
-        //
+        $folder = Folder::find($id);
+        $folder->delete();
+
+        return redirect()->back();
+    }
+
+    /**
+     * Permanently deletes soft deleted folder
+     */
+    public function atomize($id)
+    {
+        $folder = Folder::onlyTrashed()->find($id);
+        $folder->forceDelete();
+
+        return redirect()->back();
+    }
+
+    /**
+     * Restores soft deleted folder
+     */
+    public function restore($id)
+    {
+        $folder = Folder::onlyTrashed()->find($id);
+        $folder->restore();
+
+        return redirect()->back();
     }
 }

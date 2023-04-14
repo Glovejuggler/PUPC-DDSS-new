@@ -24,7 +24,16 @@ const showingNavigationDropdown = ref(false);
                 </div>
                 </Link>
 
-                <Link class="px-6 py-2 hover:bg-white/10 flex w-[90%] rounded-r-full">
+                <Link v-if="this.$page.props.auth.user.role_id !== 1" :href="route('share.index')"
+                    class="px-6 py-2 hover:bg-white/10 flex w-[90%] rounded-r-full"
+                    :class="route().current('share.index') ? 'dark:bg-zinc-700 bg-black/20' : ''">
+                <div>
+                    <i class="fa-solid fa-share-nodes w-10"></i>Shared Files
+                </div>
+                </Link>
+
+                <Link :href="route('trash')" class="px-6 py-2 hover:bg-white/10 flex w-[90%] rounded-r-full"
+                    :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('trash') }">
                 <div>
                     <i class="fa-solid fa-trash w-10"></i>Trash
                 </div>
@@ -32,11 +41,12 @@ const showingNavigationDropdown = ref(false);
             </div>
             <hr class="opacity-25 mt-6">
             <div class="mt-6 text-white px-3 space-y-3">
-                <Link :href="route('users.index')" :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('users.*') }"
+                <Link v-if="this.$page.props.auth.user.role_id === 1" :href="route('users.index')"
+                    :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('users.*') }"
                     class="px-4 py-2 hover:bg-white/10 flex rounded-lg">
                 Users
                 </Link>
-                <Link :href="route('students.index')"
+                <Link v-if="this.$page.props.auth.user.role_id === 2" :href="route('students.index')"
                     :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('students.*') }"
                     class="px-4 py-2 hover:bg-white/10 flex rounded-lg">
                 Students

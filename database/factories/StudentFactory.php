@@ -17,7 +17,10 @@ class StudentFactory extends Factory
             'first_name' => $this->faker->firstName($gender = null),
             'last_name' => $this->faker->lastName(),
             'middle_name' => $this->faker->lastName(),
-            'year' => $this->faker->numberBetween(2008, 2022),
+            'year' => $this->faker->numberBetween(2009, 2022),
+            'course' => $this->faker->randomElement([
+                'BSIT', 'BSENT', 'BTLED'
+            ]),
         ];
     }
 }

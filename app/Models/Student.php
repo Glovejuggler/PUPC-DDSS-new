@@ -14,12 +14,14 @@ class Student extends Model
         'first_name',
         'middle_name',
         'last_name',
-        'year'
+        'year',
+        'course'
     ];
 
     protected $appends = [
         'full_name',
-        'formal_full_name'
+        'formal_full_name',
+        'verbose_course'
     ];
 
     public function getFullNameAttribute()
@@ -36,6 +38,17 @@ class Student extends Model
             $this->last_name.', '.$this->first_name;
     }
 
+    public function getVerboseCourseAttribute()
+    {
+        if ($this->course == 'BSIT') {
+            return 'Bachelor of Science in Information Technoloy';
+        } elseif ($this->course == 'BSENT') {
+            return 'Bachelor of Science in Entrepreneurship';
+        } elseif ($this->course == 'BTLED') {
+            return 'Bachelor of Technology and Livelihood Education';
+        }
+    }
+
     // Filters
     public function scopeFilter($query, array $filters)
     {
@@ -47,9 +60,9 @@ class Student extends Model
             });
         })->when($filters['sortBy'] ?? null, function ($query, $sort) {
             if ($sort === '1') {
-                $query->orderBy('first_name', 'desc');
+                $query->orderBy('last_name', 'desc');
             } elseif ($sort === '2') {
-                $query->orderBy('first_name', 'asc');
+                $query->orderBy('last_name', 'asc');
             } elseif ($sort === '3') {
                 $query->orderBy('year', 'asc');
             }

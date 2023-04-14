@@ -21,7 +21,7 @@ class StudentController extends Controller
             return Student::query()
                             ->filter($request->only(['search', 'sortBy', 'filterBy']))
                             ->orderBy('year','desc')
-                            ->orderBy('first_name')
+                            ->orderBy('last_name')
                             ->paginate(40)
                             ->withQueryString();
         }
@@ -30,7 +30,7 @@ class StudentController extends Controller
             'students' => Student::query()
                                     ->filter($request->only(['search', 'sortBy', 'filterBy']))
                                     ->orderBy('year','desc')
-                                    ->orderBy('first_name')
+                                    ->orderBy('last_name')
                                     ->paginate(40)
                                     ->withQueryString(),
             'filters' => $request->only(['search', 'sortBy', 'filterBy']),
@@ -60,7 +60,8 @@ class StudentController extends Controller
         $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'year' => 'required'
+            'year' => 'required',
+            'course' => 'required'
         ]);
 
         Student::create([
@@ -68,6 +69,7 @@ class StudentController extends Controller
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'year' => $request->year,
+            'course' => $request->course,
         ]);
 
         return redirect()->back();

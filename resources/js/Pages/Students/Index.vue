@@ -1,5 +1,9 @@
 <template>
-    <Head title="Students" />
+    <Head>
+        <title>
+            Students
+        </title>
+    </Head>
 
     <div
         class="px-4 py-2 border-b dark:border-b-black/50 flex justify-between items-center sticky top-0 bg-white dark:bg-zinc-900 z-40 duration-300 ease-in-out">
@@ -62,12 +66,22 @@
                 <tr @click="this.$inertia.get(route('students.show', student))"
                     class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer"
                     v-for="student in visibleStudents.data">
-                    <td class="py-1 pl-4">{{ student.full_name }}</td>
-                    <td class="py-1 pr-4">{{ student.year }}</td>
+                    <td class="py-1 pl-4"><span class="rounded-full w-3 h-3 inline-flex self-center place-self-center mr-3"
+                            :class="student.course === 'BSIT' ? 'bg-orange-400' : student.course === 'BSENT' ? 'bg-yellow-300' : student.course === 'BTLED' ? 'bg-blue-500' : 'bg-white'"></span>{{
+                                student.formal_full_name }}</td>
+                    <td class="py-1">{{ student.year }}</td>
                 </tr>
             </tbody>
         </table>
     </InfiniteScroll>
+    <div v-if="!visibleStudents.data.length" class="flex justify-center mt-8">
+        <div class="flex flex-col items-center">
+            <div class="rounded-full bg-gray-800 dark:bg-zinc-900 h-28 w-28 items-center flex justify-center">
+                <i class="fas fa-user text-white text-5xl"></i>
+            </div>
+            <span class="text-slate-400 dark:text-white/50">No student found</span>
+        </div>
+    </div>
 
     <!-- New User Modal -->
     <div>
@@ -101,19 +115,33 @@
                             <BreezeInput id="last_name" type="text" class="mt-1 block w-full" v-model="newform.last_name" />
                         </div>
 
-                        <div class="mt-4">
-                            <BreezeLabel for="year" value="Year" />
-                            <select id="year" v-model="newform.year" required
-                                class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm mt-2 w-full">
-                                <option value="" selected hidden disabled>Select year</option>
-                                <option v-for="year in years" :value="year">{{ year }}</option>
-                            </select>
+                        <div class="mt-4 flex space-x-2">
+                            <div class="w-full">
+                                <BreezeLabel for="year" value="Year" />
+                                <select id="year" v-model="newform.year" required
+                                    class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm mt-2 w-full">
+                                    <option value="" selected hidden disabled>Select year</option>
+                                    <option v-for="year in years" :value="year">{{ year }}</option>
+                                </select>
+                            </div>
+
+                            <div class="w-full">
+                                <BreezeLabel for="course" value="Course" />
+                                <select id="course" v-model="newform.course" required
+                                    class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm mt-2 w-full">
+                                    <option value="" selected hidden disabled>Select course</option>
+                                    <option value="BSIT">BSIT</option>
+                                    <option value="BSENT">BSENT</option>
+                                    <option value="BTLED">BTLED</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="mt-6 flex justify-end space-x-2">
                             <button @click="this.showNewStudentModal = false" type="button"
                                 class="hover:underline dark:text-white/80">Cancel</button>
-                            <button type="submit"
+                            <button type="submit" :disabled="newform.processing"
+                                :class="{ 'opacity-25': newform.processing }"
                                 class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-sm rounded-lg">Save</button>
                         </div>
                     </form>
@@ -181,7 +209,8 @@ export default {
             first_name: '',
             middle_name: '',
             last_name: '',
-            year: ''
+            year: '',
+            course: ''
         })
 
         return { newform }

@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Role;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -49,7 +50,7 @@ class User extends Authenticatable
     ];
 
     protected $appends = [
-        'full_name', 'role', 'formal_full_name', 'view_avatar'
+        'full_name', 'formal_full_name', 'view_avatar'
     ];
 
     public function getFullNameAttribute()
@@ -71,8 +72,8 @@ class User extends Authenticatable
         return $this->avatar ? Storage::link($this->avatar) : '../../default.jpg';
     }
 
-    public function getRoleAttribute()
+    public function role()
     {
-        return Role::find($this->role_id)->name ?? 'Unassigned';
+        return $this->belongsTo(Role::class);
     }
 }

@@ -185,7 +185,7 @@
                         <div class="mt-6 flex justify-end space-x-2">
                             <button @click="this.showEditModal = false" type="button"
                                 class="hover:underline dark:text-white/80">Cancel</button>
-                            <button type="submit"
+                            <button type="submit" :disabled="form.processing" :class="{ 'opacity-25': form.processing }"
                                 class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-sm rounded-lg">Save</button>
                         </div>
                     </form>

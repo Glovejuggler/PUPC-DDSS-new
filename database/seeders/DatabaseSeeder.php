@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             'last_name' => 'Juggler',
             'email' => 'aelizaga77@gmail.com',
             'password' => Hash::make('admin123'),
-            'birthday' => Carbon::parse('02-10-2001'), 
+            'birthday' => Carbon::parse('02-10-2001'),
+            'role_id' => 1,
             'address' => 'Calauan, Laguna',
             'contact' => '09554881539'
         ]);

@@ -22,9 +22,9 @@
 <body class="font-sans antialiased duration-300 ease-in-out select-none">
     @inertia
 
-    @env ('local')
+    {{-- @env ('local')
     <script src="http://localhost:8080/js/bundle.js"></script>
-    @endenv
+    @endenv --}}
 </body>
 
 </html>

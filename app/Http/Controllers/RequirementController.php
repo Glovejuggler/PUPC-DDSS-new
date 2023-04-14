@@ -81,9 +81,15 @@ class RequirementController extends Controller
      * @param  \App\Models\Requirement  $requirement
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Requirement $requirement)
+    public function update(Request $request, $id)
     {
-        //
+        $requirement = Requirement::find($id);
+        $requirement->update([
+            'name' => $request->name,
+            'category' => $request->category,
+        ]);
+
+        return redirect()->back();
     }
 
     /**
@@ -92,8 +98,10 @@ class RequirementController extends Controller
      * @param  \App\Models\Requirement  $requirement
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Requirement $requirement)
+    public function destroy($id)
     {
-        //
+        $requirement = Requirement::find($id)->delete();
+
+        return redirect()->back();
     }
 }

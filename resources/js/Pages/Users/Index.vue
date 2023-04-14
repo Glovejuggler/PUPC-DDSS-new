@@ -1,7 +1,12 @@
 <template>
-    <Head title="Users" />
+    <Head>
+        <title>
+            Users
+        </title>
+    </Head>
 
-    <div class="px-4 py-2 border-b dark:border-b-black/50">
+    <div
+        class="px-4 py-2 border-b dark:border-b-black/50 sticky top-0 bg-white dark:bg-zinc-900 z-40 duration-300 ease-in-out">
         <Dropdown align="left">
             <template #trigger>
                 <button
@@ -23,19 +28,19 @@
 
     <!-- Users -->
     <div>
-        <table class="w-full dark:text-white text-left select-none mt-4">
-            <thead class="border-b dark:border-white/30 sticky top-16 bg-white dark:bg-zinc-800 duration-300 ease-in-out">
+        <table class="w-full dark:text-white text-left select-none">
+            <thead class="border-b dark:border-white/30 sticky top-14 bg-white dark:bg-zinc-900 duration-300 ease-in-out">
                 <tr>
-                    <th class="text-xs font-bold pb-3 pl-4">Name</th>
-                    <th class="text-xs font-bold pb-3">Role</th>
+                    <th class="text-xs font-bold py-3 pl-4">Name</th>
+                    <th class="text-xs font-bold py-3">Role</th>
                 </tr>
             </thead>
             <tbody>
-                <tr @click="this.$inertia.get(route('users.show', user))"
+                <tr @click="this.$inertia.get(route('users.show', user.id))"
                     class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer"
                     v-for="user in users">
                     <td class="py-2 pl-4">{{ user.full_name }}</td>
-                    <td class="py-2">{{ user.role }}</td>
+                    <td class="py-2">{{ user.role.name }}</td>
                 </tr>
             </tbody>
         </table>
@@ -132,7 +137,7 @@
                         <div class="mt-6 flex justify-end space-x-2">
                             <button @click="this.showNewUserModal = false" type="button"
                                 class="hover:underline dark:text-white/80">Cancel</button>
-                            <button type="submit"
+                            <button type="submit" :disabled="form.processing" :class="{ 'opacity-25': form.processing }"
                                 class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-sm rounded-lg">Save</button>
                         </div>
                     </form>

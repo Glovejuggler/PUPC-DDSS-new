@@ -10,7 +10,7 @@
             {{ student.formal_full_name }}
         </div>
         <div class="text-sm font-semibold dark:text-white/80">
-            {{ student.year }}
+            {{ `${student.course} - ${student.year}` }}
         </div>
     </div>
 
@@ -61,12 +61,12 @@
                     })">
                         <input required type="file" name="file" id="fileform" @input="form.file = $event.target.files[0]"
                             class="block w-full text-sm text-slate-500 dark:text-white/70
-                                                                                                                                                                                                                                file:mr-4 file:py-2 file:px-4 mt-4
-                                                                                                                                                                                                                                file:rounded-full file:border-0
-                                                                                                                                                                                                                                file:text-xs file:font-semibold
-                                                                                                                                                                                                                                file:bg-theme-50 file:text-theme-700 dark:file:text-white/70 dark:file:bg-zinc-600
-                                                                                                                                                                                                                                hover:file:bg-theme-100/20
-                                                                                                                                                                                                                                " />
+                                                                                                                                                                                                                                                                file:mr-4 file:py-2 file:px-4 mt-4
+                                                                                                                                                                                                                                                                file:rounded-full file:border-0
+                                                                                                                                                                                                                                                                file:text-xs file:font-semibold
+                                                                                                                                                                                                                                                                file:bg-theme-50 file:text-theme-700 dark:file:text-white/70 dark:file:bg-zinc-600
+                                                                                                                                                                                                                                                                hover:file:bg-theme-100/20
+                                                                                                                                                                                                                                                                " />
                         <div class="mt-4">
                             <BreezeLabel for="requirement" value="File type" />
                             <select id="requirement" v-model="form.requirement" required
