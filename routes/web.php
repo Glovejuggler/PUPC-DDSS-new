@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\FolderController;
@@ -40,12 +41,20 @@ Route::get('/file/download/{id}', [FileController::class, 'download'])->name('fi
 Route::delete('/file/{id}/delete/', [FileController::class, 'destroy'])->name('files.destroy');
 Route::get('/file/trash/{id}/restore', [FileController::class, 'restore'])->name('files.restore');
 Route::get('/file/trash/{id}/atomize', [FileController::class, 'atomize'])->name('files.atomize'); // :FlareWheeze:
+Route::put('/file/{id}/move', [FileController::class, 'move'])->name('files.move');
 
+Route::get('/folders/{id?}', [FolderController::class, 'index'])->name('folders.index');
 Route::post('/folder/store', [FolderController::class, 'store'])->name('folders.store');
 Route::put('/folder/{id}/rename', [FolderController::class, 'rename'])->name('folders.rename');
 Route::delete('/folder/{id}/delete', [FolderController::class, 'destroy'])->name('folders.destroy');
 Route::get('/folder/trash/{id}/restore', [FolderController::class, 'restore'])->name('folders.restore');
 Route::get('/folder/trash/{id}/atomize', [FolderController::class, 'atomize'])->name('folders.atomize');
+Route::put('/folder/{id}/move', [FolderController::class, 'move'])->name('folders.move');
+
+Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
+Route::put('/roles/{id}/update', [RoleController::class, 'update'])->name('roles.update');
+Route::delete('/roles/{id}/delete', [RoleController::class, 'destroy'])->name('roles.destroy');
 
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::post('/users/store', [UserController::class, 'store'])->name('users.store');

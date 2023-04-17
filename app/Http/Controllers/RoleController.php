@@ -14,7 +14,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
+        return inertia('Roles/Index', [
+            'roles' => Role::all()
+        ]);
     }
 
     /**
@@ -35,7 +37,15 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'unique:roles,name'
+        ]);
+
+        $new = Role::create([
+            'name' => $request->name,
+        ]);
+
+        return redirect()->back();
     }
 
     /**
@@ -67,9 +77,15 @@ class RoleController extends Controller
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Role $role)
+    public function update(Request $request, $id)
     {
-        //
+        $role = Role::find($id);
+
+        $role->update([
+            'name' => $request->name,
+        ]);
+
+        return redirect()->back();
     }
 
     /**
@@ -78,8 +94,12 @@ class RoleController extends Controller
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Role $role)
+    public function destroy($id)
     {
-        //
+        $role = Role::find($id);
+
+        $role->delete();
+
+        return redirect()->back();
     }
 }

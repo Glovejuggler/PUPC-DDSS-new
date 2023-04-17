@@ -41,6 +41,11 @@ const showingNavigationDropdown = ref(false);
             </div>
             <hr class="opacity-25 mt-6">
             <div class="mt-6 text-white px-3 space-y-3">
+                <Link v-if="this.$page.props.auth.user.role_id === 1" :href="route('roles.index')"
+                    :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('roles.*') }"
+                    class="px-4 py-2 hover:bg-white/10 flex rounded-lg">
+                Roles
+                </Link>
                 <Link v-if="this.$page.props.auth.user.role_id === 1" :href="route('users.index')"
                     :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('users.*') }"
                     class="px-4 py-2 hover:bg-white/10 flex rounded-lg">

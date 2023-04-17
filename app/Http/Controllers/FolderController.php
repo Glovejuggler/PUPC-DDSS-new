@@ -13,9 +13,26 @@ class FolderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $id = null)
     {
-        //
+        if ($request->wantsJson()) {
+            if (Auth::user()->role_id == 1) {
+                return [
+                    'folders' => Folder::where('parent_folder_id', $id)->get(),
+                    'parent' => Folder::find($id)?->parent_folder_id
+                ];
+            } else {
+                return [
+                    'folders' => Folder::whereHas('user', function($q) {
+                        $q->where('role_id', Auth::user()->role_id);
+                    })
+                    ->where('parent_folder_id',$id)->get(),
+                    'parent' => Folder::find($id)?->parent_folder_id
+                ];
+            }
+        } else {
+            abort(404);
+        }
     }
 
     /**
@@ -98,6 +115,20 @@ class FolderController extends Controller
         $folder = Folder::find($id);
         $folder->update([
             'name' => $request->name
+        ]);
+
+        return redirect()->back();
+    }
+
+    /**
+     * Moves folder
+     */
+    public function move(Request $request, $id)
+    {
+        $folder = Folder::find($id);
+
+        $folder->update([
+            'parent_folder_id' => $request->to,
         ]);
 
         return redirect()->back();

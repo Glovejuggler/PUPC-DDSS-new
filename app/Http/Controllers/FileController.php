@@ -274,6 +274,21 @@ class FileController extends Controller
     }
 
     /**
+     * Moves file to another folder
+     */
+    public function move(Request $request, $id)
+    {
+        $file = File::find($id);
+
+        // dd($file, $request->to);
+        $file->update([
+            'folder_id' => $request->to,
+        ]);
+
+        return redirect()->back();
+    }
+
+    /**
      * Downloads file
      */
     public function download($id)

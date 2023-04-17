@@ -19,7 +19,7 @@ class Folder extends Model
     ];
 
     protected $appends = [
-        'size'
+        'size', 'grandparent'
     ];
 
     public function ancestors()
@@ -45,5 +45,10 @@ class Folder extends Model
     public function getSizeAttribute()
     {
         return $this->files->sum('size');
+    }
+
+    public function getGrandparentAttribute()
+    {
+        return null;
     }
 }

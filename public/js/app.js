@@ -20121,6 +20121,17 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     _: 1 /* STABLE */
   }, 8 /* PROPS */, ["href", "class"])]), _hoisted_7, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, [this.$page.props.auth.user.role_id === 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["Link"], {
     key: 0,
+    href: _ctx.route('roles.index'),
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([{
+      'dark:bg-zinc-700 bg-black/20': _ctx.route().current('roles.*')
+    }, "px-4 py-2 hover:bg-white/10 flex rounded-lg"])
+  }, {
+    "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Roles ")];
+    }),
+    _: 1 /* STABLE */
+  }, 8 /* PROPS */, ["href", "class"])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), this.$page.props.auth.user.role_id === 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["Link"], {
+    key: 1,
     href: _ctx.route('users.index'),
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([{
       'dark:bg-zinc-700 bg-black/20': _ctx.route().current('users.*')
@@ -20131,7 +20142,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     }),
     _: 1 /* STABLE */
   }, 8 /* PROPS */, ["href", "class"])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), this.$page.props.auth.user.role_id === 2 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["Link"], {
-    key: 1,
+    key: 2,
     href: _ctx.route('students.index'),
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([{
       'dark:bg-zinc-700 bg-black/20': _ctx.route().current('students.*')
@@ -66331,6 +66342,10 @@ var map = {
 		"./resources/js/Pages/Requirements/Index.vue",
 		"resources_js_Pages_Requirements_Index_vue"
 	],
+	"./Roles/Index.vue": [
+		"./resources/js/Pages/Roles/Index.vue",
+		"resources_js_Pages_Roles_Index_vue"
+	],
 	"./Share/Index.vue": [
 		"./resources/js/Pages/Share/Index.vue",
 		"resources_js_Pages_Share_Index_vue"
@@ -66504,7 +66519,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_Pages_Auth_ConfirmPassword_vue":1,"resources_js_Pages_Auth_ForgotPassword_vue":1,"resources_js_Pages_Auth_Login_vue":1,"resources_js_Pages_Auth_Register_vue":1,"resources_js_Pages_Auth_ResetPassword_vue":1,"resources_js_Pages_Auth_VerifyEmail_vue":1,"resources_js_Pages_Dashboard_vue":1,"resources_js_Pages_Files_Index_vue":1,"resources_js_Pages_Files_Trash_vue":1,"resources_js_Pages_Requirements_Index_vue":1,"resources_js_Pages_Share_Index_vue":1,"resources_js_Pages_Students_Index_vue":1,"resources_js_Pages_Students_Show_vue":1,"resources_js_Pages_Users_Index_vue":1,"resources_js_Pages_Users_Show_vue":1,"resources_js_Pages_Welcome_vue":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_Pages_Auth_ConfirmPassword_vue":1,"resources_js_Pages_Auth_ForgotPassword_vue":1,"resources_js_Pages_Auth_Login_vue":1,"resources_js_Pages_Auth_Register_vue":1,"resources_js_Pages_Auth_ResetPassword_vue":1,"resources_js_Pages_Auth_VerifyEmail_vue":1,"resources_js_Pages_Dashboard_vue":1,"resources_js_Pages_Files_Index_vue":1,"resources_js_Pages_Files_Trash_vue":1,"resources_js_Pages_Requirements_Index_vue":1,"resources_js_Pages_Roles_Index_vue":1,"resources_js_Pages_Share_Index_vue":1,"resources_js_Pages_Students_Index_vue":1,"resources_js_Pages_Students_Show_vue":1,"resources_js_Pages_Users_Index_vue":1,"resources_js_Pages_Users_Show_vue":1,"resources_js_Pages_Welcome_vue":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};
