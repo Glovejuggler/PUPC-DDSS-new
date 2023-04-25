@@ -54,9 +54,13 @@ class RoleController extends Controller
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function show(Role $role)
+    public function show($id)
     {
-        //
+        $users = User::where('role_id', $id)->get();
+
+        return inertia('Roles/Show', [
+            'users' => $users
+        ]);
     }
 
     /**
@@ -96,6 +100,10 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
+        if ($id == 1 || $id == 2) {
+            abort(403);
+        }
+
         $role = Role::find($id);
 
         $role->delete();

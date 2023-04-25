@@ -7,12 +7,23 @@
 
     <div class="px-4 py-6 dark:bg-zinc-900 bg-white ease-in-out duration-300">
         <div class="flex space-x-4">
-            <img :src="user.view_avatar" alt="" class="w-36 rounded-lg">
+            <div class="w-36 h-36 rounded-lg group relative overflow-hidden">
+                <div
+                    class="group-hover:flex hidden rounded-lg w-full h-full bg-black/30 absolute justify-center items-center">
+                    <div class="space-x-2">
+                        <i @click="editAvatar"
+                            class="fa-solid fa-pen inline-flex w-10 h-10 border-2 border-white rounded-full text-white items-center justify-center hover:bg-white hover:text-black cursor-pointer"></i>
+                    </div>
+                </div>
+                <img :src="user.view_avatar" alt="" class="h-full bg-white object-cover">
+            </div>
             <div>
                 <div class="font-bold uppercase dark:text-white text-xl">
                     {{ user.formal_full_name }}
                     <i class="fa-solid fa-pen-to-square ml-2 cursor-pointer hover:text-green-600 active:text-green-800"
                         @click="this.showEditModal = true"></i>
+                    <i v-if="route().current('users.show')"
+                        class="fa-solid fa-trash ml-2 cursor-pointer hover:text-red-600 active:text-red-800" @click=""></i>
                 </div>
                 <div class="opacity-70 dark:text-white text-sm">
                     {{ user.email }}
@@ -96,6 +107,19 @@
         </div>
     </InfiniteScroll>
 
+    <!-- Context menu -->
+    <transition enter-from-class="scale-y-0" enter-to-class="duration-200 ease-out" leave-from-class="duration-200 ease-out"
+        leave-to-class="scale-y-0">
+        <div v-show="context" id="context"
+            class="bg-white dark:bg-zinc-800 rounded-lg shadow-md shadow-black/30 fixed w-48 z-50 py-2 origin-top">
+            <div v-if="selectedFile">
+                <a :href="route('files.download', this.selectedFile.id)" @mousedown.prevent=""
+                    class="dark:text-white flex px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"><i
+                        class="fa-solid fa-download w-8"></i>Download</a>
+            </div>
+        </div>
+    </transition>
+
     <!-- Edit -->
     <div>
         <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
@@ -159,8 +183,9 @@
 
                         <div class="mt-4">
                             <BreezeLabel for="role" value="Role" />
-                            <select id="role" v-model="form.role_id" required
-                                class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white/70 text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm mt-2 w-full">
+                            <select id="role" v-model="form.role_id" :required="user.id !== 1"
+                                :disabled="user.id === 1 || route().current('profile')"
+                                class="block rounded-lg dark:bg-zinc-800 dark:text-white/70 text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm mt-2 w-full">
                                 <option v-for="role in roles" :value="role.id">{{ role.name }}</option>
                             </select>
                             <span v-if="errors.role_id" class="text-xs text-red-500">{{ errors.role_id }}</span>
@@ -174,7 +199,7 @@
                                 <span v-if="errors.email" class="text-xs text-red-500">{{ errors.email }}</span>
                             </div>
 
-                            <div>
+                            <div v-if="route().current('users.show')">
                                 <BreezeLabel for="password" value="Password" />
                                 <BreezeInput id="password" type="password" class="mt-1 block w-full"
                                     v-model="form.password" />
@@ -196,6 +221,50 @@
             enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
             leave-to-class="transform opacity-0" appear>
             <div v-if="showEditModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+        </Transition>
+    </div>
+
+    <!-- Edit avatar -->
+    <div>
+        <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
+            enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
+            leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
+            <div v-if="showEditAvatarModal" class="inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
+                @click.self="this.showEditAvatarModal = false">
+                <div
+                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/3 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
+                    <span class="font-bold text-lg block mb-2">Profile picture</span>
+                    <form @submit.prevent="avatarForm.post(route('users.avatar', user.id), {
+                        onSuccess: () => this.showEditAvatarModal = errors.length
+                    })">
+                        <div>
+                            <input type="file" accept="image/*" @input="this.avatarForm.avatar = $event.target.files[0]"
+                                @change="update" />
+                        </div>
+                        <span v-if="errors.avatar" class="text-sm text-red-500">{{ errors.avatar }}</span>
+
+                        <div class="mt-4 flex justify-center">
+                            <img v-if="avatarTemp" :src="avatarTemp" alt="Avatar Preview"
+                                class="w-48 h-48 overflow-hidden rounded-lg object-cover shadow-lg shadow-black/50">
+                            <img v-if="!avatarTemp" :src="user.view_avatar" alt="Avatar Preview"
+                                class="w-48 h-48 overflow-hidden rounded-lg object-cover shadow-lg shadow-black/50">
+                        </div>
+
+                        <div class="mt-6 flex justify-end space-x-2">
+                            <button @click="this.showEditAvatarModal = false" type="button"
+                                class="hover:underline dark:text-white/80">Cancel</button>
+                            <button type="submit" :disabled="avatarForm.processing"
+                                :class="{ 'opacity-25': avatarForm.processing }"
+                                class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-sm rounded-lg">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Transition>
+        <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
+            leave-to-class="transform opacity-0" appear>
+            <div v-if="showEditAvatarModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
 </template>
@@ -221,6 +290,11 @@ export default {
             visibleFiles: this.files,
             view: localStorage.getItem('view'),
             showEditModal: false,
+            showEditAvatarModal: false,
+            showViewAvatarModal: false,
+            avatarTemp: null,
+            context: false,
+            selectedFile: ''
         }
     },
     methods: {
@@ -244,6 +318,43 @@ export default {
             var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
             return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
         },
+        editAvatar() {
+            this.showEditAvatarModal = true
+        },
+        update() {
+            if (this.avatarForm.avatar) {
+                let reader = new FileReader();
+                reader.readAsDataURL(this.avatarForm.avatar)
+
+                reader.onload = (e) => {
+                    this.avatarTemp = e.target.result
+                }
+            }
+        },
+        fileSelect(file, index) {
+            this.selectedFile = file
+            this.tempIndex = index
+        },
+        unselect() {
+            this.selectedFolder = null
+            this.selectedFile = null
+            this.fileOptions = false
+            this.context = false
+        },
+        contextMenu(event) {
+            if (event.clientX < window.innerWidth - 192) {
+                document.querySelector('#context').style.left = `${event.clientX}px`
+            } else {
+                document.querySelector('#context').style.left = `${event.clientX - 192}px`
+            }
+
+            if (event.clientY < window.innerHeight - 48) {
+                document.querySelector('#context').style.top = `${event.clientY}px`
+            } else {
+                document.querySelector('#context').style.top = `${event.clientY - 48}px`
+            }
+            this.context = true
+        },
     },
     setup(props) {
         const form = useForm({
@@ -258,7 +369,18 @@ export default {
             password: '',
         })
 
-        return { form }
+        const avatarForm = useForm({
+            avatar: null
+        })
+
+        return { form, avatarForm }
+    },
+    watch: {
+        showEditAvatarModal() {
+            if (this.showEditAvatarModal === false) {
+                this.avatarTemp = null
+            }
+        }
     }
 }
 </script>

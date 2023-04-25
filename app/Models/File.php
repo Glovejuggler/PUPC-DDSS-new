@@ -29,7 +29,7 @@ class File extends Model
         // return $this->is_image ? 'storage/'.$this->path : '../fileicons/'.Str::afterLast($this->name, '.').'.png';
         if ($this->is_image) {
             if (!Storage::disk('thumbs')->exists($this->path)) {
-                $file = Storage::disk('public')->get($this->path);
+                $file = Storage::get($this->path);
                 Storage::disk('thumbs')->put($this->path, $file);
                 $thumbPath = Storage::disk('thumbs')->path($this->path);
                 $img = Image::make($thumbPath)->resize(360, null, function ($constraint) {
@@ -58,5 +58,10 @@ class File extends Model
     public function shares()
     {
         return $this->morphMany(Share::class, 'shareable');
+    }
+
+    public function folder()
+    {
+        return $this->belongsTo(Folder::class, 'folder_id');
     }
 }

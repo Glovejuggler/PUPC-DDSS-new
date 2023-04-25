@@ -24,7 +24,6 @@
                 <div class="grid gap-2 grid-cols-6 px-4 mt-8">
                     <div v-for="(folder) in folders" @click.self="$event.target.focus()" tabindex="-1"
                         @contextmenu.prevent="contextMenu" @focusin="folderSelect(folder)" @focusout="unselect"
-                        @dblclick.prevent="this.$inertia.get(route('files', folder.id))"
                         class="w-full group cursor-pointer select-none p-4 border border-black/30 dark:border-zinc-900 focus:bg-blue-100 focus:ring-blue-700 focus:ring-1 hover:bg-black/10 dark:hover:bg-white/5 dark:focus:bg-blue-900 dark:bg-zinc-900 dark:text-white rounded-lg text-sm text-ellipsis overflow-hidden flex items-center">
                         <i class="fa-solid fa-folder w-8 text-xl mr-2 text-gray-800 dark:text-white"></i>{{ folder.name }}
                     </div>
@@ -68,8 +67,8 @@
                 <tbody>
                     <tr tabindex="-1" @contextmenu.prevent="contextMenu"
                         class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 focus:bg-blue-100 dark:focus:bg-blue-900 cursor-pointer"
-                        v-for="folder in folders" @click="$event.target.focus()" @focusin="folderSelect(folder)"
-                        @focusout="unselect" @dblclick.prevent="this.$inertia.get(route('files', folder.id))">
+                        v-for="(folder, index) in folders" :key="index" @click="$event.target.focus()"
+                        @focusin="folderSelect(folder)" @focusout="unselect">
                         <td class="py-2 pl-4"><i class="fa-solid fa-folder w-6"></i>{{ folder.name }}</td>
                         <td class="py-2">{{
                             folder.user.full_name === $page.props.auth.user.full_name ? 'You' :
@@ -125,7 +124,7 @@
                 })" class="dark:text-white px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer">
                     <i class="fa-solid fa-clock-rotate-left w-8"></i>Restore
                 </div>
-                <div @mousedown.prevent=""
+                <div @mousedown.prevent="deleteFolder"
                     class="dark:text-white px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"><i
                         class="fa-solid fa-trash-can w-8"></i>Delete forever</div>
             </div>
@@ -164,6 +163,39 @@
             <div v-if="showDeleteFileModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
+
+    <!-- Delete folder modal -->
+    <div>
+        <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
+            enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
+            leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
+            <div v-if="showDeleteFolderModal"
+                class="overflow-auto inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
+                @click.self="this.showDeleteFolderModal = false">
+                <div
+                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
+                    <span class="font-bold text-lg block mb-2">Confirmation</span>
+                    <div class="break-words">
+                        Are you sure you want to permanently delete <span class="font-semibold">{{ temp.name }}</span>?
+                    </div>
+                    <div class="text-xs text-red-500 mt-3">This action cannot be undone.</div>
+                    <div class="mt-4 flex justify-end space-x-2">
+                        <button @click="this.showDeleteFolderModal = false" type="button"
+                            class="hover:underline text-sm px-3">Cancel</button>
+                        <button @click.stop="this.$inertia.visit(route('folders.atomize', this.temp.id), {
+                            onSuccess: () => { this.showDeleteFolderModal = false }
+                        })"
+                            class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+        <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
+            leave-to-class="transform opacity-0" appear>
+            <div v-if="showDeleteFolderModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+        </Transition>
+    </div>
 </template>
 
 <script>
@@ -188,6 +220,7 @@ export default {
             context: false,
             temp: '',
             showDeleteFileModal: false,
+            showDeleteFolderModal: false,
         }
     },
     methods: {
@@ -198,9 +231,8 @@ export default {
         folderSelect(folder) {
             this.selectedFolder = folder
         },
-        fileSelect(file, index) {
+        fileSelect(file) {
             this.selectedFile = file
-            this.tempIndex = index
         },
         unselect() {
             this.selectedFolder = null
@@ -242,6 +274,11 @@ export default {
             this.temp = this.selectedFile
             this.context = false
             this.showDeleteFileModal = true
+        },
+        deleteFolder() {
+            this.temp = this.selectedFolder
+            this.context = false
+            this.showDeleteFolderModal = true
         }
     }
 }

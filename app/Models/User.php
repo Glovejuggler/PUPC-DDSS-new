@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Role;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,7 +28,8 @@ class User extends Authenticatable
         'birthday', 
         'address', 
         'contact',
-        'role_id'
+        'role_id',
+        'avatar'
     ];
 
     /**
@@ -69,7 +71,7 @@ class User extends Authenticatable
 
     public function getViewAvatarAttribute()
     {
-        return $this->avatar ? Storage::link($this->avatar) : '../../default.jpg';
+        return $this->avatar ? '../storage/'.$this->avatar : '../../default.jpg';
     }
 
     public function role()

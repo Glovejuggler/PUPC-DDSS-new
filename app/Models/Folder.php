@@ -19,12 +19,17 @@ class Folder extends Model
     ];
 
     protected $appends = [
-        'size', 'grandparent'
+        'size'
     ];
 
-    public function ancestors()
+    public function ancestor()
     {
         return $this->belongsTo(Folder::class, 'parent_folder_id');
+    }
+
+    public function subfolders()
+    {
+        return $this->hasMany(Folder::class, 'parent_folder_id');
     }
 
     public function user()
@@ -45,10 +50,5 @@ class Folder extends Model
     public function getSizeAttribute()
     {
         return $this->files->sum('size');
-    }
-
-    public function getGrandparentAttribute()
-    {
-        return null;
     }
 }

@@ -6,6 +6,7 @@ use App\Models\File;
 use App\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Share;
 use App\Models\Folder;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -41,8 +42,8 @@ class FileController extends Controller
             }
         }
 
-        $ancestors = Folder::with(['ancestors' => function ($q) {
-            $q->with('ancestors');
+        $ancestors = Folder::with(['ancestor' => function ($q) {
+            $q->with('ancestor');
         }])->find($id);
 
         $list = [];
@@ -144,7 +145,7 @@ class FileController extends Controller
         // dd($request->folder_id);
         $request->validate([
             'file' => 'required',
-            'file.*' => 'mimes:csv,txt,xlsx,xls,pdf,jpg,jpeg,png,docx,pptx,zip,rar'
+            'file.*' => 'mimes:csv,txt,xlsx,xls,pdf,jpg,jpeg,png,docx,doc,ppt,pptx,zip,rar|max:209715200'
         ]);
 
         // $folder = Folder::find($request->folder_id);
@@ -157,7 +158,7 @@ class FileController extends Controller
             // } else {
             //     $path = $file->storeAs('/', $name, 'public');
             // }
-            $path = $file->storeAs('/', $hashedName, 'public');
+            $path = $file->storeAs('/', $hashedName);
 
             $newFile = File::create([
                 'name' => $name,
@@ -165,7 +166,7 @@ class FileController extends Controller
                 'mime' => $file->getMimeType(),
                 'size' => $file->getSize(),
                 'folder_id' => $request->folder_id,
-                'user_id' => Auth::user()->id,
+                'user_id' => Auth::id(),
             ]);
         }
 
@@ -215,9 +216,14 @@ class FileController extends Controller
     public function destroy($id)
     {
         $file = File::find($id);
+
+        if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
+            abort(403);
+        }
+
         $file->delete();
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'File deleted']);
     }
 
     /**
@@ -231,7 +237,12 @@ class FileController extends Controller
     public function atomize($id)
     {
         $file = File::onlyTrashed()->find($id);
-        Storage::disk('public')->delete($file->path);
+
+        if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
+            abort(403);
+        }
+        
+        Storage::delete($file->path);
         $file->forceDelete();
 
         return redirect()->back();
@@ -239,6 +250,7 @@ class FileController extends Controller
 
     /**
      * Empty trash
+     * not yet implemented
      */
     public function ultimateAtomize()
     {
@@ -253,10 +265,15 @@ class FileController extends Controller
      */
     public function restore($id)
     {
-        $file = File::onlyTrashed()->find($id);
+        $file = File::onlyTrashed()->with('user')->find($id);
+
+        if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
+            abort(403);
+        }
+        
         $file->restore();
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'File restored', $file->folder]);
     }
 
     /**
@@ -265,12 +282,21 @@ class FileController extends Controller
     public function rename(Request $request, $id)
     {
         // dd($request, File::find($id));
+        $request->validate([
+            'name' => 'required'
+        ]);
+        
         $file = File::find($id);
+
+        if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
+            abort(403);
+        }
+
         $file->update([
             'name' => $request->name
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Rename success']);
     }
 
     /**
@@ -280,12 +306,16 @@ class FileController extends Controller
     {
         $file = File::find($id);
 
+        if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
+            abort(403);
+        }
+
         // dd($file, $request->to);
         $file->update([
             'folder_id' => $request->to,
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'File moved successfully']);
     }
 
     /**
@@ -293,8 +323,51 @@ class FileController extends Controller
      */
     public function download($id)
     {
-        $file = File::find($id);
+        $file = File::with(['shares' => function ($q) {
+            $q->where(function($q) {
+                $q->where('subject_type', 'App\Models\User')
+                    ->where('subject_id', Auth::id());
+            })->orWhere(function ($q) {
+                $q->where('subject_type', 'App\Models\Role')
+                    ->where('subject_id', Auth::user()->role_id);
+            });
+        }])->find($id);
+
+        $isShared = false;
+
+        $folder = $file->folder;
+
+        if ($folder) {
+            $shares = $folder->shares()->where(function ($q) {
+                $q->where('subject_type', 'App\Models\User')
+                    ->where('subject_id', Auth::id());
+            })->orWhere(function ($q) {
+                $q->where('subject_type', 'App\Models\Role')
+                    ->where('subject_id', Auth::user()->role_id);
+            })->get();
+
+            $isShared = $shares->isNotEmpty();
+        }
+
+        while ($folder && !$isShared) {
+            $folder = $folder->ancestor;
+            if ($folder) {
+                $shares = $folder->shares()->where(function ($q) {
+                    $q->where('subject_type', 'App\Models\User')
+                        ->where('subject_id', Auth::id());
+                })->orWhere(function ($q) {
+                    $q->where('subject_type', 'App\Models\Role')
+                        ->where('subject_id', Auth::user()->role_id);
+                })->get();
+
+                $isShared = $shares->isNotEmpty();
+            }
+        }
+
+        if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id && $file->shares->isEmpty() && !$isShared) {
+            abort(403);
+        }
         // dd(Storage::exists(Storage::url($file->path)), $file->path, Storage::url($file->path));
-        return Storage::disk('public')->download($file->path, $file->name);
+        return Storage::download($file->path, $file->name);
     }
 }

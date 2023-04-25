@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\File;
 use App\Models\Folder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class FolderController extends Controller
 {
@@ -60,7 +62,7 @@ class FolderController extends Controller
 
         if (Folder::where('name',$request->name)->where('parent_folder_id',$request->folder_id)->exists()) {
             return redirect()->back()->withErrors([
-                'name' => 'Folder already exists'
+                'folder_name' => 'Folder already exists'
             ]);
         }
 
@@ -112,7 +114,18 @@ class FolderController extends Controller
      */
     public function rename(Request $request, $id)
     {
+        $request->validate([
+            'name' => 'required'
+        ]);
+        
         $folder = Folder::find($id);
+
+        if (Folder::where('name',$request->name)->where('parent_folder_id',$folder->parent_folder_id)->exists()) {
+            return redirect()->back()->withErrors([
+                'folder_rename' => 'Folder already exists'
+            ]);
+        }
+
         $folder->update([
             'name' => $request->name
         ]);
@@ -155,6 +168,13 @@ class FolderController extends Controller
     {
         $folder = Folder::onlyTrashed()->find($id);
         $folder->forceDelete();
+
+        $files = File::where('folder_id', $id)->get();
+
+        foreach ($files as $file) {
+            Storage::delete($file->path);
+            $file->forceDelete();
+        }
 
         return redirect()->back();
     }

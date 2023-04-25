@@ -46,8 +46,8 @@
                 </div>
 
                 <div class="grid gap-2 grid-cols-6 px-4 mt-8">
-                    <div v-for="(folder) in folders" @click.self="$event.target.focus()" tabindex="-1"
-                        @contextmenu.prevent="contextMenu" @focusin="folderSelect(folder)" @focusout="unselect"
+                    <div v-for="(folder, index) in folders" @click.self="$event.target.focus()" tabindex="-1" :key="index"
+                        @contextmenu.prevent="contextMenu" @focusin="folderSelect(folder, index)" @focusout="unselect"
                         @dblclick.prevent="this.$inertia.get(route('files', folder.id))"
                         class="w-full group cursor-pointer select-none p-4 border border-black/30 dark:border-zinc-900 focus:bg-blue-100 focus:ring-blue-700 focus:ring-1 hover:bg-black/10 dark:hover:bg-white/5 dark:focus:bg-blue-900 dark:bg-zinc-900 dark:text-white rounded-lg text-sm text-ellipsis overflow-hidden flex items-center">
                         <i class="fa-solid fa-folder w-8 text-xl mr-2 text-gray-800 dark:text-white"></i>{{ folder.name }}
@@ -92,8 +92,9 @@
                 <tbody>
                     <tr tabindex="-1" @contextmenu.prevent="contextMenu"
                         class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 focus:bg-blue-100 dark:focus:bg-blue-900 cursor-pointer"
-                        v-for="folder in folders" @click="$event.target.focus()" @focusin="folderSelect(folder)"
-                        @focusout="unselect" @dblclick.prevent="this.$inertia.get(route('files', folder.id))">
+                        v-for="(folder, index) in folders" @click="$event.target.focus()"
+                        @focusin="folderSelect(folder, index)" @focusout="unselect" :key="index"
+                        @dblclick.prevent="this.$inertia.get(route('files', folder.id))">
                         <td class="py-2 pl-4"><i class="fa-solid fa-folder w-6"></i>{{ folder.name }}</td>
                         <td class="py-2">{{
                             folder.user.full_name === $page.props.auth.user.full_name ? 'You' :
@@ -104,8 +105,8 @@
                     </tr>
                     <tr tabindex="-1" @contextmenu.prevent="contextMenu"
                         class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 focus:bg-blue-100 dark:focus:bg-blue-900 cursor-pointer"
-                        v-for="file in visibleFiles.data" @click="$event.target.focus()" @focusin="fileSelect(file)"
-                        @focusout="unselect">
+                        v-for="(file, index) in visibleFiles.data" @click="$event.target.focus()" :key="index"
+                        @focusin="fileSelect(file, index)" @focusout="unselect">
                         <td class="py-2 pl-4">{{ file.name }}</td>
                         <td class="py-2">{{
                             file.user.full_name === $page.props.auth.user.full_name ? 'You' :
@@ -146,7 +147,8 @@
                     })">
                         <div class="mt-4">
                             <BreezeInput type="text" class="w-full" v-model="folderform.name" autofocus />
-                            <span v-if="errors.name">{{ errors.name }}</span>
+                            <span v-if="errors.folder_name" class="text-sm text-red-500">{{ errors.folder_name }}</span>
+                            <span v-if="errors.name" class="text-sm text-red-500">{{ errors.name }}</span>
                         </div>
                         <div class="flex justify-end mt-6">
                             <button class="mx-2 text-sm hover:underline" type="button"
@@ -275,13 +277,15 @@
                     <span class="font-bold text-lg block mb-2">Rename</span>
                     <form @submit.prevent="renameFolderForm.put(route('folders.rename', this.temp.id), {
                         preserveScroll: true,
-                        preserveState: false,
+                        preserveState: true,
                         onSuccess: () => { this.showRenameFolderModal = errors.length ? true : false }
                     })">
                         <div class="mt-4">
                             <BreezeInput type="text" class="w-full text-xs" name="name" v-model="renameFolderForm.name"
                                 autofocus onfocus="this.setSelectionRange(0, this.value.lastIndexOf('.'))" />
                         </div>
+                        <span class="text-sm text-red-500" v-if="errors.folder_rename">{{ errors.folder_rename }}</span>
+                        <span class="text-sm text-red-500" v-if="errors.name">{{ errors.name }}</span>
                         <div class="flex justify-end mt-6">
                             <button class="mx-2 text-sm hover:underline" type="button"
                                 @click="this.showRenameFolderModal = false">Cancel</button>
@@ -509,7 +513,7 @@ export default {
     },
     data() {
         return {
-            view: localStorage.getItem('view'),
+            view: localStorage.getItem('view') || 'grid',
             showAddFolderModal: false,
             selectedFolder: '',
             selectedFile: '',
@@ -545,8 +549,9 @@ export default {
             this.view = localStorage.getItem('view') === 'list' ? 'grid' : 'list'
             localStorage.setItem('view', this.view)
         },
-        folderSelect(folder) {
+        folderSelect(folder, index) {
             this.selectedFolder = folder
+            this.tempIndex = index
         },
         fileSelect(file, index) {
             this.selectedFile = file

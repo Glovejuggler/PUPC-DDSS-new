@@ -91,6 +91,9 @@ const showingNavigationDropdown = ref(false);
                                     </template>
 
                                     <template #content>
+                                        <BreezeDropdownLink :href="route('profile', null)" as="button">
+                                            Profile
+                                        </BreezeDropdownLink>
                                         <BreezeDropdownLink :href="route('logout')" method="post" as="button">
                                             Log Out
                                         </BreezeDropdownLink>
@@ -149,9 +152,13 @@ const showingNavigationDropdown = ref(false);
             </main>
         </div>
     </div>
+
+    <ToastList />
 </template>
 
 <script>
+import ToastList from '@/Components/ToastList.vue';
+
 export default {
     data() {
         return {
@@ -167,6 +174,9 @@ export default {
             }
             this.dark = !this.dark
         }
+    },
+    components: {
+        ToastList
     }
 }
 </script>
