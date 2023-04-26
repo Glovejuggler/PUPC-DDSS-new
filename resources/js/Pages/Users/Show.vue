@@ -15,15 +15,16 @@
                             class="fa-solid fa-pen inline-flex w-10 h-10 border-2 border-white rounded-full text-white items-center justify-center hover:bg-white hover:text-black cursor-pointer"></i>
                     </div>
                 </div>
-                <img :src="user.view_avatar" alt="" class="h-full bg-white object-cover">
+                <img :src="user.view_avatar" alt="" class="h-full w-full bg-white object-cover">
             </div>
             <div>
                 <div class="font-bold uppercase dark:text-white text-xl">
                     {{ user.formal_full_name }}
-                    <i class="fa-solid fa-pen-to-square ml-2 cursor-pointer hover:text-green-600 active:text-green-800"
+                    <i class="fa-solid fa-edit ml-2 cursor-pointer hover:text-green-600 active:text-green-800"
                         @click="this.showEditModal = true"></i>
-                    <i v-if="route().current('users.show')"
-                        class="fa-solid fa-trash ml-2 cursor-pointer hover:text-red-600 active:text-red-800" @click=""></i>
+                    <i v-if="route().current('users.show') && user.id !== 1"
+                        class="fa-solid fa-trash ml-2 cursor-pointer hover:text-red-600 active:text-red-800"
+                        @click="this.showDeleteModal = true"></i>
                 </div>
                 <div class="opacity-70 dark:text-white text-sm">
                     {{ user.email }}
@@ -238,7 +239,9 @@
                         onSuccess: () => this.showEditAvatarModal = errors.length
                     })">
                         <div>
-                            <input type="file" accept="image/*" @input="this.avatarForm.avatar = $event.target.files[0]"
+                            <input
+                                class="file:rounded-full file:text-xs file:bg-gray-800 file:border-0 file:text-white file:px-4 file:py-2 bg-slate-100 pr-2 rounded-full w-full"
+                                type="file" accept="image/*" @input="this.avatarForm.avatar = $event.target.files[0]"
                                 @change="update" />
                         </div>
                         <span v-if="errors.avatar" class="text-sm text-red-500">{{ errors.avatar }}</span>
@@ -267,6 +270,39 @@
             <div v-if="showEditAvatarModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
+
+    <!-- Delete User Modal -->
+    <div>
+        <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
+            enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
+            leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
+            <div v-if="showDeleteModal"
+                class="overflow-auto inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
+                @click.self="this.showDeleteModal = false">
+                <div
+                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
+                    <span class="font-bold text-lg block mb-2">Confirmation</span>
+                    <div class="break-words">
+                        Are you sure you want to delete <span class="font-bold">{{ user.full_name }}</span>?
+                    </div>
+                    <div class="mt-4 flex justify-end space-x-2">
+                        <button @click="this.showDeleteModal = false" type="button"
+                            class="hover:underline text-sm px-3">Cancel</button>
+                        <button @click.stop="this.$inertia.delete(route('users.destroy', user.id), {
+                            onSuccess: () => { this.showDeleteModal = false },
+                            preserveScroll: true
+                        })"
+                            class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+        <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
+            leave-to-class="transform opacity-0" appear>
+            <div v-if="showDeleteModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+        </Transition>
+    </div>
 </template>
 
 <script>
@@ -292,6 +328,7 @@ export default {
             showEditModal: false,
             showEditAvatarModal: false,
             showViewAvatarModal: false,
+            showDeleteModal: false,
             avatarTemp: null,
             context: false,
             selectedFile: ''

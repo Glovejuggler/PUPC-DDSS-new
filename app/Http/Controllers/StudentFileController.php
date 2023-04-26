@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Models\Requirement;
 use App\Models\StudentFile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class StudentFileController extends Controller
@@ -38,6 +39,10 @@ class StudentFileController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
+        
         $request->validate([
             'requirement' => 'required',
             'file' => 'required|file',
@@ -113,6 +118,10 @@ class StudentFileController extends Controller
      */
     public function download($id)
     {
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
+        
         $file = StudentFile::find($id);
 
         return Storage::disk('public')->download($file->path, $file->name);

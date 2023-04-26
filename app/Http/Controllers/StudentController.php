@@ -6,6 +6,8 @@ use App\Models\Student;
 use App\Models\Requirement;
 use App\Models\StudentFile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreStudentRequest;
 
 class StudentController extends Controller
 {
@@ -16,7 +18,10 @@ class StudentController extends Controller
      */
     public function index(Request $request)
     {
-        // dd(Student::orderBy('year','desc')->orderBy('first_name')->paginate(50)->groupBy('year'));
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
+
         if ($request->wantsJson()) {
             return Student::query()
                             ->filter($request->only(['search', 'sortBy', 'filterBy']))
@@ -54,25 +59,11 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreStudentRequest $request)
     {
-        // dd($request);
-        $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'year' => 'required',
-            'course' => 'required'
-        ]);
+        Student::create($request->validated());
 
-        Student::create([
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'last_name' => $request->last_name,
-            'year' => $request->year,
-            'course' => $request->course,
-        ]);
-
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Student data created']);
     }
 
     /**
@@ -83,6 +74,10 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
+        
         $submitted = StudentFile::where('student_id',$student->id)->pluck('type');
 
         return inertia('Students/Show', [
@@ -110,9 +105,11 @@ class StudentController extends Controller
      * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Student $student)
+    public function update(StoreStudentRequest $request, Student $student)
     {
-        //
+        $student->update($request->validated());
+
+        return redirect()->back()->withFlash(['success', 'Student data updated']);
     }
 
     /**
@@ -123,6 +120,12 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
-        //
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
+
+        $student->delete();
+
+        return redirect()->route('students.index')->withFlash(['success', 'Student deleted']);
     }
 }

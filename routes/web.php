@@ -66,10 +66,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
     Route::put('/users/{id}/update', [UserController::class, 'update'])->name('users.update');
     Route::post('/users/{id}/avatar', [UserController::class, 'avatar'])->name('users.avatar');
+    Route::delete('/users/{id}/delete', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
     Route::post('/students/store', [StudentController::class, 'store'])->name('students.store');
     Route::get('/students/{student}', [StudentController::class, 'show'])->name('students.show');
+    Route::put('/students/{student}/update', [StudentController::class, 'update'])->name('students.update');
+    Route::delete('/students/{student}/delete', [StudentController::class, 'destroy'])->name('students.destroy');
 
     Route::get('/requirements', [RequirementController::class, 'index'])->name('requirements.index');
     Route::post('/requirement/store', [RequirementController::class, 'store'])->name('requirements.store');

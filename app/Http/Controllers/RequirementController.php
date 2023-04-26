@@ -14,7 +14,9 @@ class RequirementController extends Controller
      */
     public function index()
     {
-        // dd('deeznuts');
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
 
         return inertia('Requirements/Index', [
             'requirements' => Requirement::all(),
@@ -39,6 +41,10 @@ class RequirementController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
+
         $request->validate([
             'category' => 'required',
             'name' => 'required'
@@ -83,6 +89,15 @@ class RequirementController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required',
+            'category' => 'required'
+        ]);
+
         $requirement = Requirement::find($id);
         $requirement->update([
             'name' => $request->name,
@@ -100,6 +115,10 @@ class RequirementController extends Controller
      */
     public function destroy($id)
     {
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
+
         $requirement = Requirement::find($id)->delete();
 
         return redirect()->back();

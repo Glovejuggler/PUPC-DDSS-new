@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
@@ -14,6 +15,10 @@ class RoleController extends Controller
      */
     public function index()
     {
+        if (Auth::user()->role_id != 1) {
+            abort(403);
+        }
+
         return inertia('Roles/Index', [
             'roles' => Role::all()
         ]);
@@ -37,6 +42,10 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth::user()->role_id != 1) {
+            abort(403);
+        }
+
         $request->validate([
             'name' => 'unique:roles,name'
         ]);
@@ -56,6 +65,10 @@ class RoleController extends Controller
      */
     public function show($id)
     {
+        if (Auth::user()->role_id != 1) {
+            abort(403);
+        }
+
         $users = User::where('role_id', $id)->get();
 
         return inertia('Roles/Show', [
@@ -83,6 +96,10 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if (Auth::user()->role_id != 1) {
+            abort(403);
+        }
+
         $role = Role::find($id);
 
         $role->update([
@@ -100,7 +117,7 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        if ($id == 1 || $id == 2) {
+        if ($id == 1 || $id == 2 || Auth::user()->role_id != 1) {
             abort(403);
         }
 

@@ -120,6 +120,10 @@ class FolderController extends Controller
         
         $folder = Folder::find($id);
 
+        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+            abort(403);
+        }
+
         if (Folder::where('name',$request->name)->where('parent_folder_id',$folder->parent_folder_id)->exists()) {
             return redirect()->back()->withErrors([
                 'folder_rename' => 'Folder already exists'
@@ -140,6 +144,10 @@ class FolderController extends Controller
     {
         $folder = Folder::find($id);
 
+        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+            abort(403);
+        }
+
         $folder->update([
             'parent_folder_id' => $request->to,
         ]);
@@ -156,6 +164,11 @@ class FolderController extends Controller
     public function destroy($id)
     {
         $folder = Folder::find($id);
+
+        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+            abort(403);
+        }
+
         $folder->delete();
 
         return redirect()->back();
@@ -167,6 +180,11 @@ class FolderController extends Controller
     public function atomize($id)
     {
         $folder = Folder::onlyTrashed()->find($id);
+
+        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+            abort(403);
+        }
+
         $folder->forceDelete();
 
         $files = File::where('folder_id', $id)->get();
@@ -185,6 +203,11 @@ class FolderController extends Controller
     public function restore($id)
     {
         $folder = Folder::onlyTrashed()->find($id);
+
+        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+            abort(403);
+        }
+        
         $folder->restore();
 
         return redirect()->back();

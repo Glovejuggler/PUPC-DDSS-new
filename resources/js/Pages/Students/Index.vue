@@ -83,7 +83,7 @@
         </div>
     </div>
 
-    <!-- New User Modal -->
+    <!-- New Student Modal -->
     <div>
         <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
             enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"

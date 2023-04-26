@@ -8,6 +8,10 @@
     <div class="px-4 py-6">
         <div class="uppercase font-bold dark:text-white text-xl">
             {{ student.formal_full_name }}
+            <i @click="this.showEditModal = true"
+                class="fa-solid fa-edit ml-2 hover:text-green-600 active:text-green-800 cursor-pointer"></i>
+            <i @click="this.showDeleteModal = true"
+                class="fa-solid fa-trash ml-2 hover:text-red-600 active:text-red-800 cursor-pointer"></i>
         </div>
         <div class="text-sm font-semibold dark:text-white/80">
             {{ `${student.course} - ${student.year}` }}
@@ -54,22 +58,17 @@
                         <i @click="this.showNewFileModal = false"
                             class="fa-solid fa-xmark inline-flex w-8 h-8 items-center justify-center cursor-pointer hover:bg-black/10 dark:hover:bg-white/20 hover:text-red-500 rounded-full"></i>
                     </div>
-                    <form @submit.prevent="form.post(route('studentfiles.store'), {
+                    <form @submit.prevent="fileform.post(route('studentfiles.store'), {
                         onSuccess: () => this.showNewFileModal = errors.length ? true : false,
                         preserveScroll: true,
                         preserveState: true
                     })">
-                        <input required type="file" name="file" id="fileform" @input="form.file = $event.target.files[0]"
-                            class="block w-full text-sm text-slate-500 dark:text-white/70
-                                                                                                                                                                                                                                                                file:mr-4 file:py-2 file:px-4 mt-4
-                                                                                                                                                                                                                                                                file:rounded-full file:border-0
-                                                                                                                                                                                                                                                                file:text-xs file:font-semibold
-                                                                                                                                                                                                                                                                file:bg-theme-50 file:text-theme-700 dark:file:text-white/70 dark:file:bg-zinc-600
-                                                                                                                                                                                                                                                                hover:file:bg-theme-100/20
-                                                                                                                                                                                                                                                                " />
+                        <input required type="file" name="file" id="fileform"
+                            @input="fileform.file = $event.target.files[0]"
+                            class="block w-full text-sm text-slate-500 dark:text-white/70                                                                                                                                                                                                           " />
                         <div class="mt-4">
                             <BreezeLabel for="requirement" value="File type" />
-                            <select id="requirement" v-model="form.requirement" required
+                            <select id="requirement" v-model="fileform.requirement" required
                                 class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white/70 text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm mt-2 w-full">
                                 <option value="" selected hidden disabled>Select one</option>
                                 <option v-for="requirement in reqops" :value="requirement.id">{{ requirement.name }}
@@ -93,19 +92,126 @@
             <div v-show="showNewFileModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
+
+    <!-- Edit Student Modal -->
+    <div>
+        <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
+            enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
+            leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
+            <div v-if="showEditModal" class="inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
+                @click.self="this.showEditModal = false">
+                <div
+                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/4 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
+                    <span class="font-bold text-lg block mb-2">New student</span>
+                    <form @submit.prevent="form.put(route('students.update', student), {
+                        onSuccess: () => this.showEditModal = errors.length ? true : false,
+                        preserveState: true,
+                        preserveScroll: true,
+                    })">
+                        <div>
+                            <BreezeLabel for="first_name" value="First name" />
+                            <BreezeInput id="first_name" type="text" class="mt-1 block w-full" v-model="form.first_name"
+                                required autofocus />
+                        </div>
+
+                        <div class="mt-4">
+                            <BreezeLabel for="middle_name" value="Middle name" />
+                            <BreezeInput id="middle_name" type="text" class="mt-1 block w-full"
+                                v-model="form.middle_name" />
+                        </div>
+
+                        <div class="mt-4">
+                            <BreezeLabel for="last_name" value="Last name" />
+                            <BreezeInput id="last_name" type="text" class="mt-1 block w-full" v-model="form.last_name" />
+                        </div>
+
+                        <div class="mt-4 flex space-x-2">
+                            <div class="w-full">
+                                <BreezeLabel for="year" value="Year" />
+                                <select id="year" v-model="form.year" required
+                                    class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm mt-2 w-full">
+                                    <option value="" selected hidden disabled>Select year</option>
+                                    <option v-for="year in years" :value="year">{{ year }}</option>
+                                </select>
+                            </div>
+
+                            <div class="w-full">
+                                <BreezeLabel for="course" value="Course" />
+                                <select id="course" v-model="form.course" required
+                                    class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm mt-2 w-full">
+                                    <option value="" selected hidden disabled>Select course</option>
+                                    <option value="BSIT">BSIT</option>
+                                    <option value="BSENT">BSENT</option>
+                                    <option value="BTLED">BTLED</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-end space-x-2">
+                            <button @click="this.showEditModal = false" type="button"
+                                class="hover:underline dark:text-white/80">Cancel</button>
+                            <button type="submit" :disabled="form.processing" :class="{ 'opacity-25': form.processing }"
+                                class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-sm rounded-lg">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Transition>
+        <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
+            leave-to-class="transform opacity-0" appear>
+            <div v-if="showEditModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+        </Transition>
+    </div>
+
+    <!-- Delete Student Modal -->
+    <div>
+        <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
+            enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
+            leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
+            <div v-if="showDeleteModal"
+                class="overflow-auto inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
+                @click.self="this.showDeleteModal = false">
+                <div
+                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
+                    <span class="font-bold text-lg block mb-2">Confirmation</span>
+                    <div class="break-words">
+                        Are you sure you want to delete <span class="font-bold">{{ student.full_name }}</span>?
+                    </div>
+                    <div class="mt-4 flex justify-end space-x-2">
+                        <button @click="this.showDeleteModal = false" type="button"
+                            class="hover:underline text-sm px-3">Cancel</button>
+                        <button @click.stop="this.$inertia.delete(route('students.destroy', student.id), {
+                            onSuccess: () => { this.showDeleteModal = false },
+                            preserveScroll: true
+                        })"
+                            class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+        <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
+            leave-to-class="transform opacity-0" appear>
+            <div v-if="showDeleteModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+        </Transition>
+    </div>
 </template>
 
 <script>
 import BreezeLabel from '@/Components/Label.vue';
+import BreezeInput from '@/Components/Input.vue';
 import { Head, useForm } from '@inertiajs/inertia-vue3';
 
 export default {
     components: {
-        Head, BreezeLabel
+        Head, BreezeLabel, BreezeInput
     },
     data() {
         return {
             showNewFileModal: false,
+            showDeleteModal: false,
+            showEditModal: false,
         }
     },
     props: {
@@ -124,13 +230,27 @@ export default {
         }
     },
     setup(props) {
-        const form = useForm({
+        const fileform = useForm({
             requirement: '',
             file: '',
             student_id: props.student.id
         })
 
-        return { form }
-    }
+        const form = useForm({
+            first_name: props.student.first_name,
+            last_name: props.student.last_name,
+            middle_name: props.student.middle_name,
+            year: props.student.year,
+            course: props.student.course,
+        })
+
+        return { form, fileform }
+    },
+    computed: {
+        years() {
+            const year = new Date().getFullYear()
+            return Array.from({ length: year - 2008 }, (value, index) => 2009 + index)
+        }
+    },
 }
 </script>

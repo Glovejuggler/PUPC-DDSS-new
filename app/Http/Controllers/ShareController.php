@@ -46,6 +46,38 @@ class ShareController extends Controller
                                         });
                                 })->get();
             } else {
+                $isShared = false;
+                $folder = Folder::find($id);
+
+                $shares = $folder->shares()->where(function ($q) {
+                    $q->where('subject_type', 'App\Models\User')
+                        ->where('subject_id', Auth::id());
+                })->orWhere(function ($q) {
+                    $q->where('subject_type', 'App\Models\Role')
+                        ->where('subject_id', Auth::user()->role_id);
+                })->get();
+
+                $isShared = $shares->isNotEmpty();
+
+                while ($folder && !$isShared) {
+                    $folder = $folder->ancestor;
+                    if ($folder) {
+                        $shares = $folder->shares()->where(function ($q) {
+                            $q->where('subject_type', 'App\Models\User')
+                                ->where('subject_id', Auth::id());
+                        })->orWhere(function ($q) {
+                            $q->where('subject_type', 'App\Models\Role')
+                                ->where('subject_id', Auth::user()->role_id);
+                        })->get();
+
+                        $isShared = $shares->isNotEmpty();
+                    }
+                }
+
+                if (!$isShared) {
+                    abort(403);
+                }
+
                 $files = File::with(['user', 'shares'])
                         ->where('folder_id', $id)
                         ->paginate(24)
@@ -85,7 +117,10 @@ class ShareController extends Controller
      */
     public function store(Request $request, $id)
     {
-        // dd($request, $id);
+        $request->validate([
+            'type' => 'required',
+        ]);
+
         if ($request->role) {
             foreach ($request->role as $role) {
                 Share::firstOrCreate([

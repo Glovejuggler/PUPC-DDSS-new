@@ -9,9 +9,12 @@ use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Folder;
 use Illuminate\Http\Request;
+use App\Http\Requests\AvatarRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\UpdateUserRequest;
 
 class UserController extends Controller
 {
@@ -22,6 +25,10 @@ class UserController extends Controller
      */
     public function index()
     {
+        if (Auth::user()->role_id != 1) {
+            abort(403);
+        }
+
         return Inertia::render('Users/Index', [
             'users' => User::with('role')->get(),
             'roles' => Role::all()
@@ -44,31 +51,9 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'birthday' => 'date|required',
-            'address' => 'required',
-            'contact' => 'required',
-            'role_id' => 'required',
-            'email' => 'email|required|unique:users',
-            'password' => 'required'
-        ]);
-        // dd($request);
-
-        User::create([
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'last_name' => $request->last_name,
-            'birthday' => Carbon::parse($request->birthday),
-            'address' => $request->address,
-            'contact' => $request->contact,
-            'role_id' => $request->role_id,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
-        ]);
+        User::create($request->validated());
 
         return redirect()->back();
     }
@@ -81,7 +66,7 @@ class UserController extends Controller
      */
     public function show(Request $request, $id = NULL)
     {
-        if (Auth::user()->role_id != 1 && Auth::user()->id != $id && $id) {
+        if (Auth::user()->role_id != 1 && Auth::id() != $id && $id) {
             abort(403);
         }
         
@@ -118,18 +103,13 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, $id)
     {
-        // dd($request);
-        $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'birthday' => 'date|required',
-            'address' => 'required',
-            'contact' => 'required',
-            'role_id' => 'required',
-            'email' => 'email|required',
-        ]);
+        if (User::where('id', '!=', $id)->where('email', $request->email)->exists()) {
+            return redirect()->back()->withErrors([
+                'email' => 'This email is already used'
+            ]);
+        }
 
         $user = User::find($id);
         $user->update([
@@ -149,6 +129,10 @@ class UserController extends Controller
         }
 
         if ($request->password) {
+            $request->validate([
+                'password' => 'min:8'
+            ]);
+
             User::find($id)->update([
                 'password' => Hash::make($request->password)
             ]);
@@ -160,17 +144,8 @@ class UserController extends Controller
     /**
      * Changes avatar of user
      */
-    public function avatar(Request $request, $id)
+    public function avatar(AvatarRequest $request, $id)
     {
-        $request->validate([
-            'avatar' => 'required|image|mimes:png,jpg|max:2048'
-        ]);
-
-        if (Auth::user()->role_id != 1 && Auth::user()->id != $id && $id) {
-            abort(403);
-        }
-
-        // dd($request->avatar, $id);
         $user = User::findOrFail($id);
 
         if (Storage::disk('public')->exists($user->avatar)) {
@@ -196,12 +171,18 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        if (Auth::user()->role_id === 1) {
-            User::find($id)->delete();
-        } else {
+        if (Auth::user()->role_id != 1) {
             abort(403);
         }
 
-        return redirect()->back();
+        $user = User::find($id);
+
+        if ($user->id != 1) {
+            $user->delete();
+        }
+
+        return redirect()->route('users.index')->withFlash([
+            'success', 'User deleted'
+        ]);
     }
 }
