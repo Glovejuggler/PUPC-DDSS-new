@@ -38,6 +38,13 @@ const showingNavigationDropdown = ref(false);
                     <i class="fa-solid fa-trash w-10"></i>Trash
                 </div>
                 </Link>
+
+                <Link :href="route('activity.log')" class="px-6 py-2 hover:bg-white/10 flex w-[90%] rounded-r-full"
+                    :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('activity.*') }">
+                <div>
+                    <i class="fa-solid fa-clipboard-list w-10"></i>Activity log
+                </div>
+                </Link>
             </div>
             <hr class="opacity-25 mt-6">
             <div class="mt-6 text-white px-3 space-y-3">
@@ -158,6 +165,7 @@ const showingNavigationDropdown = ref(false);
 
 <script>
 import ToastList from '@/Components/ToastList.vue';
+import moment from 'moment'
 
 export default {
     data() {
@@ -177,6 +185,11 @@ export default {
     },
     components: {
         ToastList
+    },
+    computed: {
+        isBirthday() {
+            return moment(String(this.$page.props.auth.user.birthday)).format('MMMM D') == moment().format('MMMM D')
+        }
     }
 }
 </script>

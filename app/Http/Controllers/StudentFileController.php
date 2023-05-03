@@ -65,7 +65,7 @@ class StudentFileController extends Controller
             'student_id' => $request->student_id,
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success',$requirement->name.' uploaded']);
     }
 
     /**

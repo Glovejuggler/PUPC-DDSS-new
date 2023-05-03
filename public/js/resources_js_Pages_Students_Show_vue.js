@@ -94,7 +94,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       showNewFileModal: false,
       showDeleteModal: false,
-      showEditModal: false
+      showEditModal: false,
+      loading: false
     };
   },
   props: {
@@ -342,7 +343,8 @@ var _hoisted_43 = {
 var _hoisted_44 = {
   "class": "mt-4 flex justify-end space-x-2"
 };
-var _hoisted_45 = {
+var _hoisted_45 = ["disabled"];
+var _hoisted_46 = {
   key: 0,
   "class": "fixed inset-0 z-40 bg-black/50 backdrop-blur-md"
 };
@@ -593,16 +595,22 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         type: "button",
         "class": "hover:underline text-sm px-3"
       }, "Cancel"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+        disabled: _this.loading,
         onClick: _cache[18] || (_cache[18] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function ($event) {
           return _this.$inertia["delete"](_ctx.route('students.destroy', $props.student.id), {
             onSuccess: function onSuccess() {
-              _this.showDeleteModal = false;
+              _this.showDeleteModal = false, _this.loading = false;
+            },
+            onStart: function onStart() {
+              return _this.loading = true;
             },
             preserveScroll: true
           });
         }, ["stop"])),
-        "class": "px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm"
-      }, "Delete")])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+        "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm", {
+          'opacity-25': _this.loading
+        }])
+      }, "Delete", 10 /* CLASS, PROPS */, _hoisted_45)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
     }),
     _: 1 /* STABLE */
   }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(vue__WEBPACK_IMPORTED_MODULE_0__.Transition, {
@@ -615,7 +623,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     appear: ""
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [$data.showDeleteModal ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_45)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+      return [$data.showDeleteModal ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_46)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
     }),
     _: 1 /* STABLE */
   })])], 64 /* STABLE_FRAGMENT */);

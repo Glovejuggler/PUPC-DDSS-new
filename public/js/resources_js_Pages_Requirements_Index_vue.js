@@ -99,7 +99,8 @@ __webpack_require__.r(__webpack_exports__);
       editRequirement: '',
       deleteRequirement: '',
       showEditModal: false,
-      showDeleteModal: false
+      showDeleteModal: false,
+      loading: false
     };
   },
   props: {
@@ -275,10 +276,7 @@ var _hoisted_22 = {
 var _hoisted_23 = {
   "class": "mt-6 flex justify-end space-x-2"
 };
-var _hoisted_24 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-  type: "submit",
-  "class": "px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-sm rounded-lg"
-}, "Save", -1 /* HOISTED */);
+var _hoisted_24 = ["disabled"];
 var _hoisted_25 = {
   key: 0,
   "class": "fixed inset-0 z-40 bg-black/50 backdrop-blur-md"
@@ -336,7 +334,8 @@ var _hoisted_41 = {
 var _hoisted_42 = {
   "class": "mt-4 flex justify-end space-x-2"
 };
-var _hoisted_43 = {
+var _hoisted_43 = ["disabled"];
+var _hoisted_44 = {
   key: 0,
   "class": "fixed inset-0 z-40 bg-black/50 backdrop-blur-md"
 };
@@ -434,7 +433,13 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         }),
         type: "button",
         "class": "hover:underline dark:text-white/80"
-      }, "Cancel"), _hoisted_24])], 32 /* HYDRATE_EVENTS */)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+      }, "Cancel"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+        type: "submit",
+        disabled: $setup.form.processing,
+        "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([{
+          'opacity-25': $setup.form.processing
+        }, "px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-sm rounded-lg"])
+      }, "Save", 10 /* CLASS, PROPS */, _hoisted_24)])], 32 /* HYDRATE_EVENTS */)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
     }),
     _: 1 /* STABLE */
   }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(vue__WEBPACK_IMPORTED_MODULE_0__.Transition, {
@@ -551,13 +556,19 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         onClick: _cache[12] || (_cache[12] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function ($event) {
           return _this.$inertia["delete"](_ctx.route('requirements.destroy', _this.deleteRequirement.id), {
             onSuccess: function onSuccess() {
-              _this.showDeleteModal = false, _this.deleteRequirement = '';
+              _this.showDeleteModal = false, _this.deleteRequirement = '', _this.loading = false;
+            },
+            onStart: function onStart() {
+              return _this.loading = true;
             },
             preserveScroll: true
           });
         }, ["stop"])),
-        "class": "px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm"
-      }, "Delete")])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+        disabled: _this.loading,
+        "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([{
+          'opacity-25': _this.loading
+        }, "px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm"])
+      }, "Delete", 10 /* CLASS, PROPS */, _hoisted_43)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
     }),
     _: 1 /* STABLE */
   }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(vue__WEBPACK_IMPORTED_MODULE_0__.Transition, {
@@ -570,7 +581,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     appear: ""
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [$data.showDeleteModal ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_43)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+      return [$data.showDeleteModal ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_44)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
     }),
     _: 1 /* STABLE */
   })])], 64 /* STABLE_FRAGMENT */);

@@ -18,20 +18,10 @@ class FolderController extends Controller
     public function index(Request $request, $id = null)
     {
         if ($request->wantsJson()) {
-            if (Auth::user()->role_id == 1) {
-                return [
-                    'folders' => Folder::where('parent_folder_id', $id)->get(),
-                    'parent' => Folder::find($id)?->parent_folder_id
-                ];
-            } else {
-                return [
-                    'folders' => Folder::whereHas('user', function($q) {
-                        $q->where('role_id', Auth::user()->role_id);
-                    })
-                    ->where('parent_folder_id',$id)->get(),
-                    'parent' => Folder::find($id)?->parent_folder_id
-                ];
-            }
+            return [
+                'folders' => Folder::admin()->folder(false, $id)->get(),
+                'parent' => Folder::find($id)?->parent_folder_id
+            ];
         } else {
             abort(404);
         }
@@ -72,7 +62,14 @@ class FolderController extends Controller
             'user_id' => Auth::user()->id
         ]);
 
-        return redirect()->back();
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($newFolder)
+            ->withProperties(['name' => $newFolder->name])
+            ->event('created')
+            ->log($newFolder->user->role_id);
+
+        return redirect()->back()->withFlash(['success', 'Folder created successfully']);
     }
 
     /**
@@ -120,21 +117,32 @@ class FolderController extends Controller
         
         $folder = Folder::find($id);
 
-        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+        if (Auth::id() != $folder->user_id && Auth::user()->role_id != 1 && Auth::user()->role_id != $folder->user->role_id) {
             abort(403);
         }
 
-        if (Folder::where('name',$request->name)->where('parent_folder_id',$folder->parent_folder_id)->exists()) {
+        if (Folder::where('id','!=',$id)->where('name',$request->name)->where('parent_folder_id',$folder->parent_folder_id)->exists()) {
             return redirect()->back()->withErrors([
                 'folder_rename' => 'Folder already exists'
             ]);
         }
 
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($folder)
+            ->withProperties(['from' => [
+                'name' => $folder->name
+            ], 'to' => [
+                'name' => $request->name
+            ]])
+            ->event('renamed')
+            ->log($folder->user->role_id);
+
         $folder->update([
             'name' => $request->name
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Rename success']);
     }
 
     /**
@@ -144,15 +152,26 @@ class FolderController extends Controller
     {
         $folder = Folder::find($id);
 
-        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+        if (Auth::id() != $folder->user_id && Auth::user()->role_id != 1 && Auth::user()->role_id != $folder->user->role_id) {
             abort(403);
         }
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($folder)
+            ->withProperties(['from' => [
+                'folder' => $folder->ancestor?->name,
+            ], 'to' => [
+                'folder' => Folder::find($request->to)?->name
+            ], 'name' => $folder->name])
+            ->event('moved')
+            ->log($folder->user->role_id);
 
         $folder->update([
             'parent_folder_id' => $request->to,
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Folder moved successfully']);
     }
 
     /**
@@ -165,13 +184,20 @@ class FolderController extends Controller
     {
         $folder = Folder::find($id);
 
-        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+        if (Auth::id() != $folder->user_id && Auth::user()->role_id != 1 && Auth::user()->role_id != $folder->user->role_id) {
             abort(403);
         }
 
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($folder)
+            ->withProperties(['name' => $folder->name])
+            ->event('deleted')
+            ->log($folder->user->role_id);
+
         $folder->delete();
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Folder deleted']);
     }
 
     /**
@@ -181,9 +207,16 @@ class FolderController extends Controller
     {
         $folder = Folder::onlyTrashed()->find($id);
 
-        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+        if (Auth::id() != $folder->user_id && Auth::user()->role_id != 1 && Auth::user()->role_id != $folder->user->role_id) {
             abort(403);
         }
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($folder)
+            ->withProperties(['name' => $folder->name])
+            ->event('permanently deleted')
+            ->log($folder->user->role_id);
 
         $folder->forceDelete();
 
@@ -194,7 +227,7 @@ class FolderController extends Controller
             $file->forceDelete();
         }
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Permanently deleted folder']);
     }
 
     /**
@@ -204,12 +237,19 @@ class FolderController extends Controller
     {
         $folder = Folder::onlyTrashed()->find($id);
 
-        if (Auth::id() != $folder->user_id || Auth::user()->role_id != 1 || Auth::user()->role_id != $folder->user->role_id) {
+        if (Auth::id() != $folder->user_id && Auth::user()->role_id != 1 && Auth::user()->role_id != $folder->user->role_id) {
             abort(403);
         }
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($folder)
+            ->withProperties(['name' => $folder->name])
+            ->event('restored')
+            ->log($folder->user->role_id);
         
         $folder->restore();
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Folder restored']);
     }
 }

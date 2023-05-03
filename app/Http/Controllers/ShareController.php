@@ -6,6 +6,7 @@ use App\Models\File;
 use App\Models\User;
 use App\Models\Share;
 use App\Models\Folder;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -167,7 +168,10 @@ class ShareController extends Controller
                     ->delete();
         }
 
-        return redirect()->back();
+        $itemType = Str::afterLast($request->type, '\\');
+        $rizz = $request->role || $request->user ? $itemType.' shared' : 'Removed share';
+
+        return redirect()->back()->withFlash(['success', $rizz]);
     }
 
     /**

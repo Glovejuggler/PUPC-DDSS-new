@@ -55,7 +55,7 @@ class UserController extends Controller
     {
         User::create($request->validated());
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'User created']);
     }
 
     /**
@@ -134,11 +134,11 @@ class UserController extends Controller
             ]);
 
             User::find($id)->update([
-                'password' => Hash::make($request->password)
+                'password' => $request->password
             ]);
         }
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'User data updated']);
     }
 
     /**
@@ -160,7 +160,7 @@ class UserController extends Controller
             'avatar' => $path
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Avatar updated']);
     }
 
     /**
@@ -184,5 +184,45 @@ class UserController extends Controller
         return redirect()->route('users.index')->withFlash([
             'success', 'User deleted'
         ]);
+    }
+
+    /**
+     * Change password of self
+     */
+    public function password(Request $request, $id)
+    {
+        if (Auth::id() != $id) {
+            abort(403);
+        }
+
+        $request->validate([
+            'password' => 'required|min:8',
+            'newPassword' => 'required|min:8',
+            'confirmPassword' => 'required|min:8',
+        ], [
+            'password.required' => 'Enter your current password',
+            'newPassword.required' => 'Enter your new password',
+            'confirmPassword.required' => 'Type your new password again'
+        ]);
+
+        $user = User::find($id);
+
+        if (!Hash::check($request->password, $user->password)) {
+            return redirect()->back()->withErrors([
+                'password' => 'Incorrect password'
+            ]);
+        }
+
+        if ($request->newPassword != $request->confirmPassword) {
+            return redirect()->back()->withErrors([
+                'confirmPassword' => 'Password do not match'
+            ]);
+        }
+
+        $user->update([
+            'password' => $request->confirmPassword
+        ]);
+
+        return redirect()->back()->withFlash(['success', 'Password changed']);
     }
 }

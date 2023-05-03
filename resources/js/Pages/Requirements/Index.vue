@@ -64,10 +64,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/4 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">New requirement</span>
                     <form @submit.prevent="form.post(route('requirements.store'), {
-                        onSuccess: () => this.showNewRequirementModal = errors.length ? true : false,
-                        preserveState: false,
-                        preserveScroll: true
-                    })">
+                            onSuccess: () => this.showNewRequirementModal = errors.length ? true : false,
+                            preserveState: false,
+                            preserveScroll: true
+                        })">
                         <div>
                             <BreezeLabel for="name" value="Requirement" />
                             <BreezeInput id="name" type="text" class="mt-1 block w-full" v-model="form.name" required
@@ -89,7 +89,7 @@
                         <div class="mt-6 flex justify-end space-x-2">
                             <button @click="this.showNewRequirementModal = false" type="button"
                                 class="hover:underline dark:text-white/80">Cancel</button>
-                            <button type="submit"
+                            <button type="submit" :disabled="form.processing" :class="{ 'opacity-25': form.processing }"
                                 class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-sm rounded-lg">Save</button>
                         </div>
                     </form>
@@ -114,10 +114,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/4 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">New requirement</span>
                     <form @submit.prevent="editForm.put(route('requirements.update', this.editRequirement.id), {
-                        onSuccess: () => this.showEditModal = errors.length ? true : false,
-                        preserveState: false,
-                        preserveScroll: true
-                    })">
+                            onSuccess: () => this.showEditModal = errors.length ? true : false,
+                            preserveState: false,
+                            preserveScroll: true
+                        })">
                         <div>
                             <BreezeLabel for="name" value="Requirement" />
                             <BreezeInput id="name" type="text" class="mt-1 block w-full" v-model="editForm.name" required
@@ -172,9 +172,10 @@
                         <button @click="this.showDeleteModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="this.$inertia.delete(route('requirements.destroy', this.deleteRequirement.id), {
-                            onSuccess: () => { this.showDeleteModal = false, this.deleteRequirement = '' },
-                            preserveScroll: true
-                        })"
+                                onSuccess: () => { this.showDeleteModal = false, this.deleteRequirement = '', this.loading = false },
+                                onStart: () => this.loading = true,
+                                preserveScroll: true
+                            })" :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
                 </div>
@@ -208,6 +209,7 @@ export default {
             deleteRequirement: '',
             showEditModal: false,
             showDeleteModal: false,
+            loading: false,
         }
     },
     props: {

@@ -6,7 +6,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['remove'])
 onMounted(() => {
-    setTimeout(() => emit("remove"), 3000);
+    setTimeout(() => emit("remove"), 7000);
 })
 </script>
 

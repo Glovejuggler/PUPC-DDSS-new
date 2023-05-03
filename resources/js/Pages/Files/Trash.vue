@@ -109,24 +109,30 @@
         <div v-show="context" id="context"
             class="bg-white dark:bg-zinc-800 rounded-lg shadow-md shadow-black/30 fixed w-48 z-50 py-2 origin-top">
             <div v-if="selectedFile">
-                <div @mousedown.prevent="$inertia.visit(route('files.restore', this.selectedFile.id), {
-                    preserveScroll: true
-                })" class="dark:text-white px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer">
+                <button @mousedown.prevent="$inertia.visit(route('files.restore', this.selectedFile.id), {
+                        preserveScroll: true,
+                        onStart: () => this.loading = true,
+                        onSuccess: () => this.loading = false
+                    })" class=" dark:text-white flex items-center justify-start w-full p-2 text-sm hover:bg-black/10 dark:hover:bg-white/10
+                cursor-pointer" :disabled="this.loading">
                     <i class="fa-solid fa-clock-rotate-left w-8"></i>Restore
-                </div>
-                <div @mousedown.prevent="deleteFile"
-                    class="dark:text-white px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"><i
-                        class="fa-solid fa-trash-can w-8"></i>Delete forever</div>
+                </button>
+                <button @mousedown.prevent="deleteFile"
+                    class="dark:text-white flex items-center justify-start w-full p-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"><i
+                        class="fa-solid fa-trash-can w-8"></i>Delete forever</button>
             </div>
             <div v-if="selectedFolder">
-                <div @mousedown.prevent="$inertia.visit(route('folders.restore', this.selectedFolder.id), {
-                    preserveScroll: true
-                })" class="dark:text-white px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer">
+                <button @mousedown.prevent="$inertia.visit(route('folders.restore', this.selectedFolder.id), {
+                        preserveScroll: true,
+                        onStart: () => this.loading = true,
+                        onSuccess: () => this.loading = false
+                    })" :disabled="this.loading"
+                    class="dark:text-white flex items-center justify-start w-full p-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer">
                     <i class="fa-solid fa-clock-rotate-left w-8"></i>Restore
-                </div>
-                <div @mousedown.prevent="deleteFolder"
-                    class="dark:text-white px-4 py-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"><i
-                        class="fa-solid fa-trash-can w-8"></i>Delete forever</div>
+                </button>
+                <button @mousedown.prevent="deleteFolder"
+                    class="dark:text-white flex items-center justify-start w-full p-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"><i
+                        class="fa-solid fa-trash-can w-8"></i>Delete forever</button>
             </div>
         </div>
     </transition>
@@ -150,8 +156,9 @@
                         <button @click="this.showDeleteFileModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="this.$inertia.visit(route('files.atomize', this.temp.id), {
-                            onSuccess: () => { this.showDeleteFileModal = false }
-                        })"
+                                onSuccess: () => { this.showDeleteFileModal = false }
+                            })
+                            "
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
                 </div>
@@ -183,8 +190,9 @@
                         <button @click="this.showDeleteFolderModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="this.$inertia.visit(route('folders.atomize', this.temp.id), {
-                            onSuccess: () => { this.showDeleteFolderModal = false }
-                        })"
+                                onSuccess: () => { this.showDeleteFolderModal = false }
+                            })
+                            "
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
                 </div>
@@ -221,6 +229,7 @@ export default {
             temp: '',
             showDeleteFileModal: false,
             showDeleteFolderModal: false,
+            loading: false
         }
     },
     methods: {

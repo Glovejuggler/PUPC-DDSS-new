@@ -49,41 +49,32 @@ class FileController extends Controller
         $list = [];
         $this->getAncestors($ancestors, $list);
 
-        if (Auth::user()->id !== 1) {
-            $files = File::with(['user', 'shares'])
-                        ->whereHas('user', function($q) {
-                            $q->where('role_id',Auth::user()->id);
-                        })
-                        ->where('folder_id', $id)
+        $files = File::with(['user', 'shares'])
+                        ->filter($request->only(['search', 'sortBy']))
+                        ->folder($request->only(['search']), $id)
+                        ->admin()
+                        ->orderBy('name', 'asc')
                         ->paginate(24)
                         ->withQueryString();
-            $folders = Folder::where('parent_folder_id', $id)
-                        ->with(['user', 'shares'])
-                        ->whereHas('user', function($q) {
-                            $q->where('role_id',Auth::user()->id);
-                        })
+        $folders = Folder::with(['user', 'shares'])
+                        ->filter($request->only(['search', 'sortBy']))
+                        ->folder($request->only(['search']), $id)
+                        ->admin()
+                        ->orderBy('name', 'asc')
                         ->get();
-        } else {
-            $files = File::with(['user', 'shares'])
-                        ->where('folder_id', $id)
-                        ->paginate(24)
-                        ->withQueryString();
-            $folders = Folder::where('parent_folder_id', $id)
-                        ->with(['user', 'shares'])
-                        ->get();
-        }
 
         if ($request->wantsJson()) {
             return $files;
         }
 
         return Inertia::render('Files/Index', [
-            'folder_id' => (int)$id,
+            'folder_id' => $id == 0 ? null : (int)$id,
             'files' => $files,
             'folders' => $folders,
             'ancestors' => array_reverse($list),
             'roles' => Role::where('id','!=',1)->where('id', '!=', Auth::user()->role_id)->get(),
             'users' => User::where('id', '!=', Auth::user()->id)->where('role_id','!=',Auth::user()->role_id)->get(),
+            'filters' => $request->only(['search', 'sortBy'])
         ]);
     }
 
@@ -92,27 +83,41 @@ class FileController extends Controller
      */
     public function trash(Request $request)
     {
-        if (Auth::user()->role_id !== 1) {
-            $files = File::onlyTrashed()
-                            ->with('user')
-                            ->whereHas('user', function($q) {
-                                $q->where('role_id',Auth::user()->id);
-                            })
-                            ->paginate(24)
-                            ->withQueryString();
-            $folders = Folder::onlyTrashed()
-                            ->with('user')
-                            ->whereHas('user', function($q) {
-                                $q->where('role_id',Auth::user()->id);
-                            })
-                            ->get();
-        } else {
-            $files = File::onlyTrashed()
-                            ->with('user')
-                            ->paginate(24)
-                            ->withQueryString();
-            $folders = Folder::onlyTrashed()->with('user')->get();
-        }
+        // if (Auth::user()->role_id !== 1) {
+        //     $files = File::onlyTrashed()
+        //                     ->with('user')
+        //                     ->whereHas('user', function($q) {
+        //                         $q->where('role_id',Auth::user()->role_id);
+        //                     })
+        //                     ->paginate(24)
+        //                     ->withQueryString();
+        //     $folders = Folder::onlyTrashed()
+        //                     ->with('user')
+        //                     ->whereHas('user', function($q) {
+        //                         $q->where('role_id',Auth::user()->role_id);
+        //                     })
+        //                     ->get();
+        // } else {
+        //     $files = File::onlyTrashed()
+        //                     ->with('user')
+        //                     ->paginate(24)
+        //                     ->withQueryString();
+        //     $folders = Folder::onlyTrashed()->with('user')->get();
+        // }
+
+        $files = File::onlyTrashed()
+                        ->with(['user', 'shares'])
+                        ->filter($request->only(['search', 'sortBy']))
+                        ->admin()
+                        ->orderBy('name', 'asc')
+                        ->paginate(24)
+                        ->withQueryString();
+        $folders = Folder::onlyTrashed()
+                        ->with(['user', 'shares'])
+                        ->filter($request->only(['search', 'sortBy']))
+                        ->admin()
+                        ->orderBy('name', 'asc')
+                        ->get();
 
         if ($request->wantsJson()) {
             return $files;
@@ -168,9 +173,16 @@ class FileController extends Controller
                 'folder_id' => $request->folder_id,
                 'user_id' => Auth::id(),
             ]);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($newFile)
+                ->withProperties(['name' => $newFile->name])
+                ->event('uploaded')
+                ->log($newFile->user->role_id);
         }
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'File/s uploaded successfully']);
     }
 
     /**
@@ -221,6 +233,13 @@ class FileController extends Controller
             abort(403);
         }
 
+        activity()
+                ->causedBy(Auth::user())
+                ->performedOn($file)
+                ->withProperties(['name' => $file->name])
+                ->event('deleted')
+                ->log($file->user->role_id);
+
         $file->delete();
 
         return redirect()->back()->withFlash(['success', 'File deleted']);
@@ -241,11 +260,18 @@ class FileController extends Controller
         if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
             abort(403);
         }
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($file)
+            ->withProperties(['name' => $file->name])
+            ->event('permanently deleted')
+            ->log($file->user->role_id);
         
         Storage::delete($file->path);
         $file->forceDelete();
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Permanently deleted file']);
     }
 
     /**
@@ -270,6 +296,13 @@ class FileController extends Controller
         if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
             abort(403);
         }
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($file)
+            ->withProperties(['name' => $file->name])
+            ->event('restored')
+            ->log($file->user->role_id);
         
         $file->restore();
 
@@ -292,6 +325,23 @@ class FileController extends Controller
             abort(403);
         }
 
+        if (File::where('id','!=',$id)->where('folder_id',$file->folder_id)->where('name',$request->name)->exists()) {
+            return redirect()->back()->withErrors([
+                'file_rename' => 'A file with this name already exists'
+            ]);
+        }
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($file)
+            ->withProperties(['from' => [
+                'name' => $file->name
+            ], 'to' => [
+                'name' => $request->name
+            ]])
+            ->event('renamed')
+            ->log($file->user->role_id);
+
         $file->update([
             'name' => $request->name
         ]);
@@ -311,6 +361,18 @@ class FileController extends Controller
         }
 
         // dd($file, $request->to);
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($file)
+            ->withProperties(['from' => [
+                'folder' => $file->folder?->name,
+            ], 'to' => [
+                'folder' => Folder::find($request->to)?->name
+            ], 'name' => $file->name])
+            ->event('moved')
+            ->log($file->user->role_id);
+
         $file->update([
             'folder_id' => $request->to,
         ]);

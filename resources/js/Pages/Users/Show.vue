@@ -132,10 +132,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/3 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">Edit</span>
                     <form @submit.prevent="form.put(route('users.update', user.id), {
-                        onSuccess: () => this.showEditModal = errors.length ? true : false,
-                        preserveScroll: true,
-                        preserveState: true
-                    })">
+                            onSuccess: () => this.showEditModal = errors.length ? true : false,
+                            preserveScroll: true,
+                            preserveState: true
+                        })">
                         <div class="grid grid-flow-col space-x-2">
                             <div>
                                 <BreezeLabel for="first_name" value="First name" />
@@ -208,6 +208,11 @@
                             </div>
                         </div>
 
+                        <div @click="changePassword" v-if="route().current('profile')"
+                            class="mt-4 text-blue-500 text-xs hover:text-blue-700 active:text-blue-800 cursor-pointer">
+                            <i class="fa-solid fa-lock mr-1"></i>Change password
+                        </div>
+
                         <div class="mt-6 flex justify-end space-x-2">
                             <button @click="this.showEditModal = false" type="button"
                                 class="hover:underline dark:text-white/80">Cancel</button>
@@ -236,8 +241,8 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/3 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">Profile picture</span>
                     <form @submit.prevent="avatarForm.post(route('users.avatar', user.id), {
-                        onSuccess: () => this.showEditAvatarModal = errors.length
-                    })">
+                            onSuccess: () => this.showEditAvatarModal = errors.length
+                        })">
                         <div>
                             <input
                                 class="file:rounded-full file:text-xs file:bg-gray-800 file:border-0 file:text-white file:px-4 file:py-2 bg-slate-100 pr-2 rounded-full w-full"
@@ -289,9 +294,10 @@
                         <button @click="this.showDeleteModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="this.$inertia.delete(route('users.destroy', user.id), {
-                            onSuccess: () => { this.showDeleteModal = false },
-                            preserveScroll: true
-                        })"
+                                onSuccess: () => { this.showDeleteModal = false, this.loading = false },
+                                onStart: () => this.loading = true,
+                                preserveScroll: true
+                            })" :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
                 </div>
@@ -301,6 +307,60 @@
             enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
             leave-to-class="transform opacity-0" appear>
             <div v-if="showDeleteModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+        </Transition>
+    </div>
+
+    <!-- Change password -->
+    <div>
+        <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
+            enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
+            leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
+            <div v-if="changePasswordModal && route().current('profile')"
+                class="inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
+                @click.self="this.changePasswordModal = false">
+                <div
+                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
+                    <span class="font-bold text-lg block mb-2">Change password</span>
+                    <form @submit.prevent="password.put(route('password', user.id), {
+                            onSuccess: () => { this.changePasswordModal = errors.length, password.reset() }
+                        })">
+                        <div>
+                            <BreezeLabel for="password" value="Current password" />
+                            <BreezeInput id="password" type="password" class="mt-1 block w-full" v-model="password.password"
+                                required />
+                            <span v-if="errors.password" class="text-xs text-red-500">{{ errors.password }}</span>
+                        </div>
+
+                        <div class="mt-4">
+                            <BreezeLabel for="newPassword" value="New password" />
+                            <BreezeInput id="newPassword" type="password" class="mt-1 block w-full"
+                                v-model="password.newPassword" required />
+                            <span v-if="errors.newPassword" class="text-xs text-red-500">{{ errors.newPassword }}</span>
+                        </div>
+
+                        <div class="mt-4">
+                            <BreezeLabel for="confirmPassword" value="Confirm new password" />
+                            <BreezeInput id="confirmPassword" type="password" class="mt-1 block w-full"
+                                v-model="password.confirmPassword" required />
+                            <span v-if="errors.confirmPassword" class="text-xs text-red-500">{{ errors.confirmPassword
+                            }}</span>
+                        </div>
+
+                        <div class="mt-6 flex justify-end space-x-2">
+                            <button @click="this.changePasswordModal = false" type="button"
+                                class="hover:underline dark:text-white/80">Cancel</button>
+                            <button type="submit" :disabled="password.processing"
+                                :class="{ 'opacity-25': password.processing }"
+                                class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-sm rounded-lg">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Transition>
+        <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
+            leave-to-class="transform opacity-0" appear>
+            <div v-if="changePasswordModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
 </template>
@@ -331,7 +391,9 @@ export default {
             showDeleteModal: false,
             avatarTemp: null,
             context: false,
-            selectedFile: ''
+            selectedFile: '',
+            loading: false,
+            changePasswordModal: false,
         }
     },
     methods: {
@@ -392,6 +454,10 @@ export default {
             }
             this.context = true
         },
+        changePassword() {
+            this.showEditModal = false
+            this.changePasswordModal = true
+        }
     },
     setup(props) {
         const form = useForm({
@@ -410,7 +476,13 @@ export default {
             avatar: null
         })
 
-        return { form, avatarForm }
+        const password = useForm({
+            password: '',
+            newPassword: '',
+            confirmPassword: ''
+        })
+
+        return { form, avatarForm, password }
     },
     watch: {
         showEditAvatarModal() {

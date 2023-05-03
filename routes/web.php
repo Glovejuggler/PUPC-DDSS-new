@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\RequirementController;
 use App\Http\Controllers\StudentFileController;
 
@@ -67,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/users/{id}/update', [UserController::class, 'update'])->name('users.update');
     Route::post('/users/{id}/avatar', [UserController::class, 'avatar'])->name('users.avatar');
     Route::delete('/users/{id}/delete', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::put('/password/{id}/change', [UserController::class, 'password'])->name('password');
 
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
     Route::post('/students/store', [StudentController::class, 'store'])->name('students.store');
@@ -84,4 +86,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/share/file/{id}', [ShareController::class, 'store'])->name('share');
     Route::get('/shared/{id?}', [ShareController::class, 'index'])->name('share.index');
+
+    Route::get('/activity-log', [ActivityController::class, 'index'])->name('activity.log');
 });

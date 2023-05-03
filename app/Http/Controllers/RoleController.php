@@ -54,7 +54,7 @@ class RoleController extends Controller
             'name' => $request->name,
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Role created']);
     }
 
     /**
@@ -106,7 +106,7 @@ class RoleController extends Controller
             'name' => $request->name,
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Role updated']);
     }
 
     /**
@@ -125,6 +125,6 @@ class RoleController extends Controller
 
         $role->delete();
 
-        return redirect()->back();
+        return redirect()->back()->withFlash(['success', 'Role deleted']);
     }
 }
