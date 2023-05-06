@@ -5,7 +5,7 @@
         </title>
     </Head>
 
-    <div class="flex justify-end py-2 bg-white dark:bg-zinc-900 sticky top-0 duration-300 ease-in-out">
+    <div class="flex justify-end py-2 px-4 bg-white dark:bg-zinc-900 sticky top-0 duration-300 ease-in-out">
         <label class="relative block">
             <i class='fa-solid fa-search dark:text-white/20 absolute inset-y-0 left-0 flex items-center pl-3'></i>
             <input v-model="form.search"

@@ -31,8 +31,12 @@
         </Dropdown>
 
         <div>
-            <BreezeInput type="text" class="dark:text-white dark:placeholder:text-white/70 w-96 dark:bg-zinc-900"
-                placeholder="Search" v-model="form.search" />
+            <label class="relative block">
+                <i class='fa-solid fa-search dark:text-white/20 absolute inset-y-0 left-0 flex items-center pl-3'></i>
+                <input v-model="form.search"
+                    class="duration-300 ease-in-out placeholder:italic placeholder:text-slate-400 dark:placeholder:text-gray-500 dark:text-white/80 block bg-white dark:bg-zinc-900 w-96 border-slate-300 dark:border-slate-300/20 rounded-md py-2 pl-9 pr-3 shadow-sm focus:border-indigo-300 focus:ring-indigo-200 focus:ring focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Search..." type="text" name="search" />
+            </label>
         </div>
 
         <div>
@@ -94,10 +98,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/4 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">New student</span>
                     <form @submit.prevent="newform.post(route('students.store'), {
-                        onSuccess: () => this.showNewStudentModal = errors.length ? true : false,
-                        preserveState: true,
-                        preserveScroll: true,
-                    })">
+                            onSuccess: () => this.showNewStudentModal = errors.length ? true : false,
+                            preserveState: true,
+                            preserveScroll: true,
+                        })">
                         <div>
                             <BreezeLabel for="first_name" value="First name" />
                             <BreezeInput id="first_name" type="text" class="mt-1 block w-full" v-model="newform.first_name"

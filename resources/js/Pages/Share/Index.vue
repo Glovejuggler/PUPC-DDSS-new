@@ -36,17 +36,17 @@
                 <div class="dark:text-white/80 px-4 mt-8 font-bold">
                     Files
                 </div>
-                <div class="grid gap-2 grid-cols-6 px-4 mt-8">
+                <div class="grid gap-2 lg:grid-cols-6 md:grid-cols-5 grid-cols-3 px-4 mt-8">
                     <div v-for="(file, index) in visibleFiles.data" @contextmenu.prevent="contextMenu" :key="index"
                         @click="$event.target.focus()" tabindex="-1" @focusin="fileSelect(file, index)" @focusout="unselect"
                         :id="`file${file.id}`"
-                        class="w-full h-56 overflow-hidden border border-black/30 focus:ring-blue-700 focus:ring-1 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm relative select-none cursor-pointer">
-                        <div class="w-full h-48 overflow-hidden">
-                            <img :src="`${file.img_source}`" class="object-cover h-48 w-full bg-white dark:bg-zinc-900"
-                                alt="">
+                        class="w-full overflow-hidden border border-black/30 focus:ring-blue-700 focus:ring-1 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm select-none cursor-pointer">
+                        <div class="w-full h-48 overflow-hidden flex justify-center bg-white dark:bg-zinc-900">
+                            <img @dragstart.prevent="" :src="`${file.img_source}`" class="object-cover h-48 w-max"
+                                :alt="file.name">
                         </div>
                         <div
-                            class="absolute bottom-0 bg-white dark:bg-zinc-900 dark:text-white text-sm w-full px-4 py-3 overflow-hidden text-ellipsis whitespace-nowrap">
+                            class="bg-white dark:bg-zinc-900 dark:text-white text-sm w-full px-4 py-3 overflow-hidden text-ellipsis whitespace-nowrap">
                             {{ file.name }}
                         </div>
                     </div>
@@ -96,8 +96,16 @@
     </InfiniteScroll>
 
     <!-- Empty folder -->
-    <div v-if="!folders.length && !visibleFiles.data.length" class="text-center dark:text-white/50 mt-8">
-        Empty folder
+    <div v-if="!folders.length && !visibleFiles.data.length" class="flex justify-center mt-8">
+        <div class="flex flex-col items-center">
+            <div class="rounded-full bg-gray-800 dark:bg-zinc-900 h-28 w-28 items-center flex justify-center">
+                <i class="text-white text-5xl"
+                    :class="folder ? 'fa-regular fa-folder-open' : 'fa-solid fa-share-nodes'"></i>
+            </div>
+            <span class="text-slate-400 dark:text-white/50 mt-4">
+                {{ folder ? 'Empty folder' : 'Shared files will go here' }}
+            </span>
+        </div>
     </div>
 
     <!-- Context menu -->
@@ -133,7 +141,7 @@ export default {
     },
     data() {
         return {
-            view: localStorage.getItem('view'),
+            view: localStorage.getItem('view') ?? 'grid',
             selectedFolder: '',
             selectedFile: '',
             visibleFiles: this.files,
@@ -146,6 +154,7 @@ export default {
         files: Object,
         folders: Object,
         errors: Object,
+        folder: Number
     },
     methods: {
         toggleView() {

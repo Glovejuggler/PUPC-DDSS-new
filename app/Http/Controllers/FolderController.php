@@ -20,7 +20,8 @@ class FolderController extends Controller
         if ($request->wantsJson()) {
             return [
                 'folders' => Folder::admin()->folder(false, $id)->get(),
-                'parent' => Folder::find($id)?->parent_folder_id
+                'parent' => Folder::find($id)?->parent_folder_id,
+                'current' => Folder::find($id)
             ];
         } else {
             abort(404);

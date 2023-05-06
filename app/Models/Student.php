@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\StudentFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -55,8 +56,11 @@ class Student extends Model
         $query->when($filters['search'] ?? null, function ($query, $search) {
             $query->where(function ($query) use ($search) {
                 $query->where('first_name','like','%'.$search.'%')
-                    ->orWhere('last_name','like','%'.$search.'%')
-                    ->orWhere('year','=',$search);
+                        ->orWhere('last_name','like','%'.$search.'%')
+                        ->orWhere('year','=',$search)
+                        ->orWhere(DB::raw("CONCAT_WS(' ', first_name, middle_name, last_name)"), 'like', '%'.$search.'%')
+                        ->orWhere(DB::raw("CONCAT_WS(' ', first_name, last_name)"), 'like', '%'.$search.'%')
+                        ->orWhere(DB::raw("CONCAT_WS(' ', last_name, first_name, middle_name)"), 'like', '%'.$search.'%');
             });
         })->when($filters['sortBy'] ?? null, function ($query, $sort) {
             if ($sort === '1') {

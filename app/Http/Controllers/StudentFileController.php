@@ -42,10 +42,12 @@ class StudentFileController extends Controller
         if (Auth::user()->role_id != 2) {
             abort(403);
         }
+
+        // dd($request);
         
         $request->validate([
             'requirement' => 'required',
-            'file' => 'required|file',
+            'file' => 'required|file|mimes:pdf',
             'file.*' => 'mimes:pdf',
             'student_id' => 'required'
         ]);

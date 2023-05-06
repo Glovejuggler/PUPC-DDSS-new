@@ -43,8 +43,8 @@
         </div>
     </div>
 
-    <div v-if="filterForm.search" class="px-4 mt-4 dark:text-white">
-        Search results for <span class="font-bold">{{ `"${filterForm.search}"` }}</span>
+    <div v-if="filters.search" class="px-4 mt-4 dark:text-white">
+        Search results for <span class="font-bold">{{ `"${filters.search}"` }}</span>
     </div>
 
     <!-- Files -->
@@ -90,13 +90,13 @@
                     <div v-for="(file, index) in visibleFiles.data" @contextmenu.prevent="contextMenu" :key="index"
                         @click="$event.target.focus()" tabindex="-1" @focusin="fileSelect(file, index)" @focusout="unselect"
                         :id="`file${file.id}`"
-                        class="w-full h-56 overflow-hidden border border-black/30 focus:ring-blue-700 focus:ring-1 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm relative select-none cursor-pointer">
-                        <div class="w-full h-48 overflow-hidden">
-                            <img @dragstart.prevent="" :src="`${file.img_source}`"
-                                class="object-cover h-48 w-full bg-white dark:bg-zinc-900" :alt="file.name">
+                        class="w-full overflow-hidden border border-black/30 focus:ring-blue-700 focus:ring-1 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm select-none cursor-pointer">
+                        <div class="w-full h-48 overflow-hidden flex justify-center bg-white dark:bg-zinc-900">
+                            <img @dragstart.prevent="" loading="lazy" :src="`${file.img_source}`"
+                                class="object-cover h-48 w-max" :alt="file.name">
                         </div>
                         <div
-                            class="absolute bottom-0 bg-white dark:bg-zinc-900 dark:text-white text-sm w-full px-4 py-3 overflow-hidden text-ellipsis whitespace-nowrap">
+                            class="bg-white dark:bg-zinc-900 dark:text-white text-sm w-full px-4 py-3 overflow-hidden text-ellipsis whitespace-nowrap">
                             {{ file.name }}
                         </div>
                     </div>
@@ -153,12 +153,18 @@
     </InfiniteScroll>
 
     <!-- Empty folder -->
-    <div v-if="!folders.length && !visibleFiles.data.length && !filterForm.search"
-        class="text-center dark:text-white/50 mt-8">
-        Empty folder
+    <div v-if="!folders.length && !visibleFiles.data.length && !filters.search" class="flex justify-center mt-8">
+        <div class="flex flex-col items-center">
+            <div class="rounded-full bg-gray-800 dark:bg-zinc-900 h-28 w-28 items-center flex justify-center">
+                <i class="fa-regular fa-folder-open text-white text-5xl"></i>
+            </div>
+            <span class="text-slate-400 dark:text-white/50 mt-4">Empty folder. <span
+                    onclick="document.querySelector('#fileupload').click();"
+                    class="hover:underline cursor-pointer text-blue-600 dark:text-blue-300">Upload
+                    files.</span></span>
+        </div>
     </div>
-    <div v-if="!folders.length && !visibleFiles.data.length && filterForm.search"
-        class="text-center dark:text-white/50 mt-8">
+    <div v-if="!folders.length && !visibleFiles.data.length && filters.search" class="text-center dark:text-white/50 mt-8">
         Search not found
     </div>
 
@@ -178,10 +184,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
                     <span class="font-bold text-lg block mb-2">New folder</span>
                     <form @submit.prevent="folderform.post(route('folders.store'), {
-                            onSuccess: () => this.showAddFolderModal = errors.length ? true : false,
-                            preserveState: true,
-                            preserveScroll: true
-                        })">
+                        onSuccess: () => this.showAddFolderModal = errors.length ? true : false,
+                        preserveState: true,
+                        preserveScroll: true
+                    })">
                         <div class="mt-4">
                             <BreezeInput type="text" class="w-full" v-model="folderform.name" autofocus />
                             <span v-if="errors.folder_name" class="text-sm text-red-500">{{ errors.folder_name }}</span>
@@ -274,10 +280,13 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
                     <span class="font-bold text-lg block mb-2">Rename</span>
                     <form @submit.prevent="renameFileForm.put(route('files.rename', this.temp.id), {
-                            preserveScroll: true,
-                            preserveState: true,
-                            onSuccess: () => { this.showRenameFileModal = errors.length ? true : false }
-                        })">
+                        preserveScroll: true,
+                        preserveState: true,
+                        onSuccess: () => {
+                            this.showRenameFileModal = errors.length ? true : false
+                            this.visibleFiles = this.files
+                        }
+                    })">
                         <div class="mt-4">
                             <BreezeInput type="text" class="w-full text-xs" name="name" v-model="renameFileForm.name"
                                 autofocus onfocus="this.setSelectionRange(0, this.value.lastIndexOf('.'))" />
@@ -314,10 +323,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
                     <span class="font-bold text-lg block mb-2">Rename</span>
                     <form @submit.prevent="renameFolderForm.put(route('folders.rename', this.temp.id), {
-                            preserveScroll: true,
-                            preserveState: true,
-                            onSuccess: () => { this.showRenameFolderModal = errors.length ? true : false }
-                        })">
+                        preserveScroll: true,
+                        preserveState: true,
+                        onSuccess: () => { this.showRenameFolderModal = errors.length ? true : false }
+                    })">
                         <div class="mt-4">
                             <BreezeInput type="text" class="w-full text-xs" name="name" v-model="renameFolderForm.name"
                                 autofocus onfocus="this.setSelectionRange(0, this.value.lastIndexOf('.'))" />
@@ -359,32 +368,33 @@
                             onSuccess: () => this.showShareModal = false,
                             preserveState: false
                         })
-                    ">
+                        ">
                         <div class="mt-4">
                             <span class="font-bold">Roles</span>
-                            <div v-for="                                                                                                                                         role                                                                                                                                          in                                                                                                                                          roles                                                                                                                                         "
-                                class="flex items-center">
-                                <input :id=" `role${role.id}checkbox` " type="checkbox" v-model=" shareForm.role "
-                                    class="text-xs rounded-full mr-4 focus:ring-0 focus:outline-none" :value=" role.id " />
-                                <label :for=" `role${role.id}checkbox` ">{{ role.name }}</label>
+                            <div v-for="role in roles" class="flex items-center"
+                                :class="{ 'opacity-25': this.temp.user.role_id === role.id }">
+                                <input :id="`role${role.id}checkbox`" type="checkbox" v-model="shareForm.role"
+                                    :disabled="this.temp.user.role_id === role.id"
+                                    class="text-xs rounded-full mr-4 focus:ring-0 focus:outline-none" :value="role.id" />
+                                <label :for="`role${role.id}checkbox`">{{ role.name }}</label>
                             </div>
                         </div>
                         <div class="mt-4">
                             <span class="font-bold">Users</span>
-                            <template
-                                v-for="                                                                                                                                         user                                                                                                                                          in                                                                                                                                          users                                                                                                                                         ">
-                                <div class="flex items-center" v-if=" this.temp.user_id !== user.id ">
-                                    <input :id=" `user${user.id}checkbox` " type="checkbox" v-model=" shareForm.user "
-                                        class="text-xs rounded-full mr-4 focus:ring-0 focus:outline-none"
-                                        :value=" user.id " />
-                                    <label :for=" `user${user.id}checkbox` ">{{ user.full_name }}</label>
+                            <template v-for="user in users">
+                                <div class="flex items-center"
+                                    :class="{ 'opacity-25': this.temp.user.id === user.id || this.temp.user.role_id === user.role_id }">
+                                    <input :id="`user${user.id}checkbox`" type="checkbox" v-model="shareForm.user"
+                                        class="text-xs rounded-full mr-4 focus:ring-0 focus:outline-none" :value="user.id"
+                                        :disabled="this.temp.user.id === user.id || this.temp.user.role_id === user.role_id" />
+                                    <label :for="`user${user.id}checkbox`">{{ user.full_name }}</label>
                                 </div>
                             </template>
                         </div>
                         <div class="flex justify-end mt-6">
                             <button class="mx-2 text-sm hover:underline" type="button"
-                                @click=" this.showShareModal = false; this.shareForm.reset() ">Cancel</button>
-                            <button :class=" { 'opacity-25': shareForm.processing } " :disabled=" shareForm.processing "
+                                @click=" this.showShareModal = false; this.shareForm.reset()">Cancel</button>
+                            <button :class="{ 'opacity-25': shareForm.processing }" :disabled="shareForm.processing"
                                 class="mx-2 p-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-900 text-white text-sm rounded-lg disabled:cursor-not-allowed">
                                 Share</button>
                         </div>
@@ -395,7 +405,7 @@
         <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
             enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
             leave-to-class="transform opacity-0" appear>
-            <div v-if=" showShareModal " class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+            <div v-if="showShareModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
 
@@ -404,77 +414,36 @@
         <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
             enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
             leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
-            <div v-if=" showMoveFileModal "
+            <div v-if="showMoveFileModal"
                 class="overflow-auto inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
-                @click.self=" this.showMoveFileModal = false; this.moveFolders = ''; this.moveFolderChild = false ">
+                @click.self=" this.showMoveFileModal = false; this.moveFolders = ''; this.moveFolderChild = false">
                 <div
-                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
-                    <span class="font-bold text-lg block mb-2">Move to</span>
-                    <div v-if=" this.moveFolderChild " @click=" goToFolder(this.moveFolderParent) "
-                        class="p-2 hover:bg-black/10 dark:hover:bg-white/20 rounded-lg cursor-pointer">
-                        <i class="fa-solid fa-arrow-left"></i>
+                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 min-h-[50vh] flex flex-col max-h-[80%] p-6 rounded-lg dark:text-white">
+                    <span class="font-bold text-lg block mb-2">Move to <span class="text-blue-500 dark:text-blue-300">
+                            {{ currentFolder?.name ?? 'Root Folder' }}</span></span>
+                    <div class="overflow-y-auto">
+                        <div v-if="this.moveFolderChild" @click=" goToFolder(this.moveFolderParent)"
+                            class="p-2 hover:bg-black/10 dark:hover:bg-white/20 rounded-lg cursor-pointer">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </div>
+                        <template v-if="!this.loading" v-for="folder in moveFolders">
+                            <div @click=" goToFolder(folder.id)"
+                                class="p-2 hover:bg-black/10 dark:hover:bg-white/20 rounded-lg cursor-pointer">
+                                <i class="fa-solid fa-folder w-8"></i>{{ folder.name }}
+                            </div>
+                        </template>
                     </div>
-                    <div v-if=" this.loading " class="flex justify-center mt-2"><i
+                    <div v-if="this.loading" class="flex justify-center mt-2"><i
                             class="fa-solid fa-spinner fa-spin text-xl"></i>
                     </div>
-                    <template v-if=" !this.loading "
-                        v-for="                                                                                                                           folder                                                                                                                            in                                                                                                                            moveFolders                                                                                                                           ">
-                        <div @click=" goToFolder(folder.id) "
-                            class="p-2 hover:bg-black/10 dark:hover:bg-white/20 rounded-lg cursor-pointer">
-                            <i class="fa-solid fa-folder w-8"></i>{{ folder.name }}
-                        </div>
-                    </template>
-                    <div class="mt-4 flex justify-end">
+                    <div class="mt-auto flex justify-end">
                         <button class="px-4 py-2 text-sm rounded-lg bg-blue-500 text-white" @click="
                             this.moveForm.put(route('files.move', this.temp.id), {
                                 preserveState: false,
                                 onSuccess: () => this.showMoveFileModal = false
-                            })
-                        "
-                            :class=" { 'opacity-25 cursor-not-allowed': this.temp.folder_id === moveFolderChild || moveForm.processing } "
-                            :disabled=" this.temp.folder_id === moveFolderChild || moveForm.processing ">Move here</button>
-                    </div>
-                </div>
-            </div>
-        </Transition>
-        <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
-            enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
-            leave-to-class="transform opacity-0" appear>
-            <div v-if=" showMoveFileModal " class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
-        </Transition>
-    </div>
-
-    <!-- Move folder modal -->
-    <div>
-        <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
-            enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
-            leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
-            <div v-if=" showMoveFolderModal "
-                class="overflow-auto inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
-                @click.self=" this.showMoveFolderModal = false; this.moveFolders = ''; this.moveFolderChild = false ">
-                <div
-                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
-                    <span class="font-bold text-lg block mb-2">Move to</span>
-                    <div v-if=" this.moveFolderChild " @click=" goToFolder(this.moveFolderParent) "
-                        class="p-2 hover:bg-black/10 dark:hover:bg-white/20 rounded-lg cursor-pointer">
-                        <i class="fa-solid fa-arrow-left"></i>
-                    </div>
-                    <template v-if=" !this.loading "
-                        v-for="                                                                                                                                         folder                                                                                                                                          in                                                                                                                                          moveFolders                                                                                                                                         ">
-                        <div @click=" goToFolder(folder.id) " v-if=" folder.id !== this.temp.id "
-                            class="p-2 hover:bg-black/10 dark:hover:bg-white/20 rounded-lg cursor-pointer">
-                            <i class="fa-solid fa-folder w-8"></i>{{ folder.name }}
-                        </div>
-                    </template>
-                    <div class="mt-4 flex justify-end">
-                        <button class="px-4 py-2 text-sm rounded-lg bg-blue-500 text-white" @click="
-                            this.moveForm.put(route('folders.move', this.temp.id), {
-                                preserveState: false,
-                                onSuccess: () => this.showMoveFolderModal = false
-                            })
-                        "
-                            :class=" { 'opacity-25 cursor-not-allowed': this.temp.parent_folder_id === moveFolderChild || this.temp.id === moveFolderChild } "
-                            :disabled=" this.temp.parent_folder_id === moveFolderChild || this.temp.id === moveFolderChild ">Move
+                            })"
+                            :class="{ 'opacity-25 cursor-not-allowed': this.temp.folder_id === moveFolderChild || moveForm.processing }"
+                            :disabled="this.temp.folder_id === moveFolderChild || moveForm.processing">Move
                             here</button>
                     </div>
                 </div>
@@ -483,7 +452,55 @@
         <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
             enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
             leave-to-class="transform opacity-0" appear>
-            <div v-if=" showMoveFolderModal " class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+            <div v-if="showMoveFileModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+        </Transition>
+    </div>
+
+    <!-- Move folder modal -->
+    <div>
+        <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
+            enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
+            leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
+            <div v-if="showMoveFolderModal"
+                class="overflow-auto inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
+                @click.self=" this.showMoveFolderModal = false; this.moveFolders = ''; this.moveFolderChild = false">
+                <div
+                    class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 min-h-[50vh] flex flex-col max-h-[80%] p-6 rounded-lg dark:text-white">
+                    <span class="font-bold text-lg block mb-2">Move to <span class="text-blue-500 dark:text-blue-300">
+                            {{ currentFolder?.name ?? 'Root Folder' }}</span></span>
+                    <div class="h-max overflow-y-auto">
+                        <div v-if="this.moveFolderChild" @click=" goToFolder(this.moveFolderParent)"
+                            class="p-2 hover:bg-black/10 dark:hover:bg-white/20 rounded-lg cursor-pointer">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </div>
+                        <template v-if="!this.loading" v-for="folder in moveFolders">
+                            <div @click="goToFolder(folder.id)" v-if="folder.id !== this.temp.id"
+                                class="p-2 hover:bg-black/10 dark:hover:bg-white/20 rounded-lg cursor-pointer">
+                                <i class="fa-solid fa-folder w-8"></i>{{ folder.name }}
+                            </div>
+                        </template>
+                    </div>
+                    <div v-if="this.loading" class="flex justify-center mt-2"><i
+                            class="fa-solid fa-spinner fa-spin text-xl"></i>
+                    </div>
+                    <div class="mt-auto flex justify-end">
+                        <button class="px-4 py-2 text-sm rounded-lg bg-blue-500 text-white" @click="
+                            this.moveForm.put(route('folders.move', this.temp.id), {
+                                preserveState: false,
+                                onSuccess: () => this.showMoveFolderModal = false
+                            })
+                            "
+                            :class="{ 'opacity-25 cursor-not-allowed': this.temp.parent_folder_id === moveFolderChild || this.temp.id === moveFolderChild }"
+                            :disabled="this.temp.parent_folder_id === moveFolderChild || this.temp.id === moveFolderChild">Move
+                            here</button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+        <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
+            leave-to-class="transform opacity-0" appear>
+            <div v-if="showMoveFolderModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
 
@@ -492,9 +509,9 @@
         <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
             enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
             leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
-            <div v-if=" showDeleteFileModal "
+            <div v-if="showDeleteFileModal"
                 class="overflow-auto inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
-                @click.self=" this.showDeleteFileModal = false ">
+                @click.self=" this.showDeleteFileModal = false">
                 <div
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
                     <span class="font-bold text-lg block mb-2">Confirmation</span>
@@ -502,14 +519,14 @@
                         Are you sure you want to delete <span class="font-semibold">{{ temp.name }}</span>?
                     </div>
                     <div class="mt-4 flex justify-end space-x-2">
-                        <button @click=" this.showDeleteFileModal = false " type="button"
+                        <button @click=" this.showDeleteFileModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="
                             this.$inertia.delete(route('files.destroy', this.temp.id), {
                                 onSuccess: () => { this.showDeleteFileModal = false, this.visibleFiles.data.splice(this.tempIndex, 1), this.loading = false },
                                 onStart: () => this.loading = true,
                             })
-                        " :disabled=" this.loading " :class=" { 'opacity-25': this.loading } "
+                            " :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
                 </div>
@@ -518,7 +535,7 @@
         <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
             enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
             leave-to-class="transform opacity-0" appear>
-            <div v-if=" showDeleteFileModal " class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+            <div v-if="showDeleteFileModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
 
@@ -527,9 +544,9 @@
         <Transition enter-active-class="duration-200 ease-out" enter-from-class="transform opacity-0 scale-75"
             enter-to-class="opacity-100 scale-100" leave-active-class="duration-200 ease-out"
             leave-from-class="opacity-100 scale-100" leave-to-class="transform opacity-0 scale-75">
-            <div v-if=" showDeleteFolderModal "
+            <div v-if="showDeleteFolderModal"
                 class="overflow-auto inset-0 fixed z-50 h-screen w-screen flex justify-center items-center"
-                @click.self=" this.showDeleteFolderModal = false ">
+                @click.self=" this.showDeleteFolderModal = false">
                 <div
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white">
                     <span class="font-bold text-lg block mb-2">Confirmation</span>
@@ -537,14 +554,14 @@
                         Are you sure you want to delete <span class="font-semibold">{{ temp.name }}</span>?
                     </div>
                     <div class="mt-4 flex justify-end space-x-2">
-                        <button @click=" this.showDeleteFolderModal = false " type="button"
+                        <button @click=" this.showDeleteFolderModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="
                             this.$inertia.delete(route('folders.destroy', this.temp.id), {
                                 onSuccess: () => { this.showDeleteFolderModal = false, folders.splice(this.tempIndex, 1), this.loading = false },
                                 onStart: () => this.loading = true
                             })
-                        " :disabled=" this.loading " :class=" { 'opacity-25': this.loading } "
+                            " :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
                 </div>
@@ -553,7 +570,7 @@
         <Transition enter-active-class="duration-200 ease opacity-0" enter-from-class="opacity-0"
             enter-to-class="opacity-100" leave-active-class="duration-200 ease opacity-90" leave-from-class="opacity-90"
             leave-to-class="transform opacity-0" appear>
-            <div v-if=" showDeleteFolderModal " class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
+            <div v-if="showDeleteFolderModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
 </template>
@@ -727,6 +744,7 @@ export default {
                 axios.get('/folders').then(response => {
                     this.moveFolders = response.data.folders
                     this.moveFolderParent = response.data.parent
+                    this.currentFolder = response.data.current
                 }).finally(() => this.loading = false)
             }
             this.showMoveFileModal = true
@@ -741,6 +759,7 @@ export default {
                 axios.get('/folders').then(response => {
                     this.moveFolders = response.data.folders
                     this.moveFolderParent = response.data.parent
+                    this.currentFolder = response.data.current
                 }).finally(() => this.loading = false)
             }
             this.showMoveFolderModal = true
@@ -752,6 +771,7 @@ export default {
             axios.get(route('folders.index', folder)).then(response => {
                 this.moveFolders = response.data.folders
                 this.moveFolderParent = response.data.parent
+                this.currentFolder = response.data.current
             }).finally(() => this.loading = false)
         },
         orderFiles() {

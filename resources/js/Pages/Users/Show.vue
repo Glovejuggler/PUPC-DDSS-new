@@ -54,24 +54,45 @@
     <div
         class="dark:text-white/80 px-4 py-2 sticky top-0 bg-white dark:bg-zinc-900 ease-in-out duration-300 font-bold flex justify-between items-center z-40">
         <span>Files</span>
-        <i @click="toggleView()" :class="view === 'grid' ? 'fa-list' : 'fa-grip'" id="viewToggle"
-            class="fa-solid dark:text-white dark:hover:bg-white/10 hover:bg-black/10 inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer"></i>
+        <div class="flex space-x-2">
+            <label class="relative block">
+                <i class='fa-solid fa-search dark:text-white/20 absolute inset-y-0 left-0 flex items-center pl-3'></i>
+                <input v-model="filterForm.search"
+                    class="duration-300 ease-in-out placeholder:italic placeholder:text-slate-400 dark:placeholder:text-gray-500 dark:text-white/80 block bg-white dark:bg-zinc-900 w-96 border-slate-300 dark:border-slate-300/20 rounded-md py-2 pl-9 pr-3 shadow-sm focus:border-indigo-300 focus:ring-indigo-200 focus:ring focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Search..." type="text" name="search" />
+            </label>
+            <i @click="toggleView()" :class="view === 'grid' ? 'fa-list' : 'fa-grip'" id="viewToggle"
+                class="fa-solid dark:text-white dark:hover:bg-white/10 hover:bg-black/10 inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer"></i>
+        </div>
     </div>
+
+    <div v-if="filters.search" class="dark:text-white p-4">
+        Search results for <span class="font-bold">{{ `"${filters.search}"` }}</span>
+    </div>
+
     <InfiniteScroll :loadMore="loadMoreFiles">
         <div v-if="view === 'grid'" class="pb-8">
             <section v-if="visibleFiles.data.length">
                 <!-- Grid -->
-                <div class="grid gap-2 grid-cols-6 px-4 mt-8">
-                    <div v-for="(file) in visibleFiles.data" @contextmenu.prevent="contextMenu"
-                        @click="$event.target.focus()" tabindex="-1" @focusin="fileSelect(file)" @focusout="unselect"
+                <div class="text-sm font-normal dark:text-white/80 p-4 flex justify-end">
+                    <span @click="filterForm.sortBy = filterForm.sortBy < 2 ? 2 : null"
+                        class="rounded-full text-xs hover:bg-black/10 active:bg-black/20 dark:hover:bg-white/5 dark:active:bg-white/10 px-4 py-2">{{
+                            filterForm.sortBy < 2 ? 'Name' : 'Date uploaded' }}</span>
+                            <i :class="filterForm.sortBy === null || filterForm.sortBy === 2 ? 'fa-arrow-up' : 'fa-arrow-down'"
+                                @click="orderFiles"
+                                class="fa-solid text-xs w-8 h-8 rounded-full inline-flex justify-center items-center hover:bg-black/10 active:bg-black/20 dark:hover:bg-white/5 dark:active:bg-white/10"></i>
+                </div>
+                <div class="grid gap-2 lg:grid-cols-6 md:grid-cols-5 grid-cols-3 px-4 mt-8">
+                    <div v-for="(file, index) in visibleFiles.data" @contextmenu.prevent="contextMenu" :key="index"
+                        @click="$event.target.focus()" tabindex="-1" @focusin="fileSelect(file, index)" @focusout="unselect"
                         :id="`file${file.id}`"
-                        class="w-full h-56 overflow-hidden border border-black/30 focus:ring-blue-700 focus:ring-1 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm relative select-none cursor-pointer">
-                        <div class="w-full h-48 overflow-hidden">
-                            <img :src="`../storage/${file.img_source}`"
-                                class="object-cover h-48 w-full bg-white dark:bg-zinc-900" alt="">
+                        class="w-full overflow-hidden border border-black/30 focus:ring-blue-700 focus:ring-1 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm select-none cursor-pointer">
+                        <div class="w-full h-48 overflow-hidden flex justify-center bg-white dark:bg-zinc-900">
+                            <img @dragstart.prevent="" :src="`${file.img_source}`" class="object-cover h-48 w-max"
+                                :alt="file.name">
                         </div>
                         <div
-                            class="absolute bottom-0 bg-white dark:bg-zinc-900 dark:text-white text-sm w-full px-4 py-3 overflow-hidden text-ellipsis whitespace-nowrap">
+                            class="bg-white dark:bg-zinc-900 dark:text-white text-sm w-full px-4 py-3 overflow-hidden text-ellipsis whitespace-nowrap">
                             {{ file.name }}
                         </div>
                     </div>
@@ -84,10 +105,16 @@
                 <thead
                     class="border-b dark:border-white/30 sticky top-14 bg-white dark:bg-zinc-800 duration-300 ease-in-out">
                     <tr>
-                        <th class="text-xs font-bold py-3 pl-4">Name</th>
-                        <th class="text-xs font-bold py-3">Uploaded by</th>
-                        <th class="text-xs font-bold py-3">Date uploaded</th>
-                        <th class="text-xs font-bold py-3 pr-4">Size</th>
+                        <th @click="filterForm.sortBy = filterForm.sortBy === null ? 1 : null"
+                            class="text-xs font-bold py-1 pl-4">Name <i v-if="filterForm.sortBy < 2"
+                                class="fa-solid ml-1 inline-flex w-6 h-6 rounded-full justify-center items-center hover:bg-black/10 active:bg-black/20 dark:hover:bg-white/5 dark:active:bg-white/10"
+                                :class="filterForm.sortBy === null ? 'fa-arrow-up' : 'fa-arrow-down'"></i></th>
+                        <th class="text-xs font-bold py-1">Uploaded by</th>
+                        <th @click="filterForm.sortBy = filterForm.sortBy === 2 ? 3 : 2" class="text-xs font-bold py-1">Date
+                            uploaded <i v-if="filterForm.sortBy > 1"
+                                class="fa-solid ml-1 inline-flex w-6 h-6 rounded-full justify-center items-center hover:bg-black/10 active:bg-black/20 dark:hover:bg-white/5 dark:active:bg-white/10"
+                                :class="filterForm.sortBy === 2 ? 'fa-arrow-up' : 'fa-arrow-down'"></i></th>
+                        <th class="text-xs font-bold py-1 pr-4">Size</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,7 +122,7 @@
                         class="text-sm border-b dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/20 focus:bg-blue-100 dark:focus:bg-blue-900 cursor-pointer"
                         v-for="file in visibleFiles.data" @click="$event.target.focus()" @focusin="fileSelect(file)"
                         @focusout="unselect">
-                        <td class="py-2 pl-4">{{ file.name }}</td>
+                        <td class="py-2 pl-4 max-w-xs pr-2">{{ file.name }}</td>
                         <td class="py-2">{{
                             file.user.full_name === $page.props.auth.user.full_name ? 'You' :
                             file.user.full_name
@@ -107,6 +134,18 @@
             </table>
         </div>
     </InfiniteScroll>
+
+    <!-- Empty state -->
+    <div v-if="!visibleFiles.data.length" class="flex justify-center mt-8">
+        <div class="flex flex-col items-center">
+            <div class="rounded-full bg-gray-800 dark:bg-zinc-900 h-28 w-28 items-center flex justify-center">
+                <i class="text-white text-5xl"
+                    :class="filters.search ? 'fa-solid fa-magnifying-glass' : 'fa-regular fa-file'"></i>
+            </div>
+            <span class="text-slate-400 dark:text-white/50 mt-4">
+                {{ !filters.search ? user.full_name + ' does not have any files' : 'Search not found' }}</span>
+        </div>
+    </div>
 
     <!-- Context menu -->
     <transition enter-from-class="scale-y-0" enter-to-class="duration-200 ease-out" leave-from-class="duration-200 ease-out"
@@ -132,10 +171,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/3 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">Edit</span>
                     <form @submit.prevent="form.put(route('users.update', user.id), {
-                            onSuccess: () => this.showEditModal = errors.length ? true : false,
-                            preserveScroll: true,
-                            preserveState: true
-                        })">
+                        onSuccess: () => this.showEditModal = errors.length ? true : false,
+                        preserveScroll: true,
+                        preserveState: true
+                    })">
                         <div class="grid grid-flow-col space-x-2">
                             <div>
                                 <BreezeLabel for="first_name" value="First name" />
@@ -241,11 +280,11 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/3 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">Profile picture</span>
                     <form @submit.prevent="avatarForm.post(route('users.avatar', user.id), {
-                            onSuccess: () => this.showEditAvatarModal = errors.length
-                        })">
+                        onSuccess: () => this.showEditAvatarModal = errors.length
+                    })">
                         <div>
                             <input
-                                class="file:rounded-full file:text-xs file:bg-gray-800 file:border-0 file:text-white file:px-4 file:py-2 bg-slate-100 pr-2 rounded-full w-full"
+                                class="file:rounded-full file:text-xs file:bg-gray-800 file:border-0 file:text-white file:px-4 file:py-2 bg-slate-100 dark:text-black mr-2 rounded-full w-full"
                                 type="file" accept="image/*" @input="this.avatarForm.avatar = $event.target.files[0]"
                                 @change="update" />
                         </div>
@@ -294,10 +333,10 @@
                         <button @click="this.showDeleteModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="this.$inertia.delete(route('users.destroy', user.id), {
-                                onSuccess: () => { this.showDeleteModal = false, this.loading = false },
-                                onStart: () => this.loading = true,
-                                preserveScroll: true
-                            })" :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
+                            onSuccess: () => { this.showDeleteModal = false, this.loading = false },
+                            onStart: () => this.loading = true,
+                            preserveScroll: true
+                        })" :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
                 </div>
@@ -322,8 +361,8 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-96 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">Change password</span>
                     <form @submit.prevent="password.put(route('password', user.id), {
-                            onSuccess: () => { this.changePasswordModal = errors.length, password.reset() }
-                        })">
+                        onSuccess: () => { this.changePasswordModal = errors.length, password.reset() }
+                    })">
                         <div>
                             <BreezeLabel for="password" value="Current password" />
                             <BreezeInput id="password" type="password" class="mt-1 block w-full" v-model="password.password"
@@ -370,6 +409,8 @@ import { Head, useForm } from '@inertiajs/inertia-vue3';
 import InfiniteScroll from '@/Components/InfiniteScroll.vue';
 import BreezeInput from '@/Components/Input.vue';
 import BreezeLabel from '@/Components/Label.vue';
+import throttle from 'lodash/throttle';
+import pickBy from 'lodash/pickBy';
 
 export default {
     components: {
@@ -379,7 +420,8 @@ export default {
         user: Object,
         files: Object,
         errors: Object,
-        roles: Object
+        roles: Object,
+        filters: Object
     },
     data() {
         return {
@@ -394,6 +436,10 @@ export default {
             selectedFile: '',
             loading: false,
             changePasswordModal: false,
+            filterForm: {
+                search: this.filters.search,
+                sortBy: this.filters.sortBy || null
+            }
         }
     },
     methods: {
@@ -457,6 +503,10 @@ export default {
         changePassword() {
             this.showEditModal = false
             this.changePasswordModal = true
+        },
+        orderFiles() {
+            if (this.filterForm.sortBy < 2) this.filterForm.sortBy = this.filterForm.sortBy === null ? 1 : null
+            else this.filterForm.sortBy = this.filterForm.sortBy === 2 ? 3 : 2
         }
     },
     setup(props) {
@@ -489,6 +539,17 @@ export default {
             if (this.showEditAvatarModal === false) {
                 this.avatarTemp = null
             }
+        },
+        filterForm: {
+            deep: true,
+            handler: throttle(function () {
+                this.$inertia.get(route('users.show', this.user.id), pickBy(this.filterForm), {
+                    preserveScroll: true,
+                    preserveState: true,
+                    replace: true,
+                    onFinish: () => this.visibleFiles = this.files
+                })
+            })
         }
     }
 }

@@ -174,7 +174,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("title", null, "\r\n            Activity Log\r\n        ", -1 /* HOISTED */);
 var _hoisted_2 = {
-  "class": "flex justify-end py-2 bg-white dark:bg-zinc-900 sticky top-0 duration-300 ease-in-out"
+  "class": "flex justify-end py-2 px-4 bg-white dark:bg-zinc-900 sticky top-0 duration-300 ease-in-out"
 };
 var _hoisted_3 = {
   "class": "relative block"

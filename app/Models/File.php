@@ -41,7 +41,7 @@ class File extends Model
 
             return '../thumbs/'.$this->path;
         } else {
-            return '../fileicons/'.Str::afterLast($this->name, '.').'.png';
+            return '../fileicons/'.Str::afterLast($this->path, '.').'.png';
         }
     }
 

@@ -72,7 +72,12 @@ class UserController extends Controller
         
         $user = $id ? User::find($id) : Auth::user();
 
-        $files = File::with('user')->where('user_id', $user->id)->paginate(24)->withQueryString();
+        $files = File::with('user')
+                ->where('user_id', $user->id)
+                ->filter($request->only(['search', 'sortBy']))
+                ->orderBy('name', 'asc')
+                ->paginate(24)
+                ->withQueryString();
 
         if ($request->wantsJson()) {
             return $files;
@@ -81,7 +86,8 @@ class UserController extends Controller
         return inertia('Users/Show', [
             'user' => $user,
             'files' => $files,
-            'roles' => Role::all()
+            'roles' => Role::all(),
+            'filters' => $request->only(['search', 'sortBy'])
         ]);
     }
 

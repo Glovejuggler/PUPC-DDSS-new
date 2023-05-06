@@ -59,13 +59,21 @@
                             class="fa-solid fa-xmark inline-flex w-8 h-8 items-center justify-center cursor-pointer hover:bg-black/10 dark:hover:bg-white/20 hover:text-red-500 rounded-full"></i>
                     </div>
                     <form @submit.prevent="fileform.post(route('studentfiles.store'), {
-                            onSuccess: () => this.showNewFileModal = errors.length ? true : false,
-                            preserveScroll: true,
-                            preserveState: true
-                        })">
-                        <input required type="file" name="file" id="fileform"
+                        onSuccess: () => {
+                            if (errors.length) {
+                                this.showNewFileModal = true
+                            } else {
+                                this.showNewFileModal = false
+                                fileform.reset()
+                            }
+                        },
+                        preserveScroll: true,
+                        preserveState: true
+                    })">
+                        <input required type="file" name="file" id="fileform" accept="application/pdf"
                             @input="fileform.file = $event.target.files[0]"
-                            class="block w-full text-sm text-slate-500 dark:text-white/70                                                                                                                                                                                                           " />
+                            class="file:rounded-full file:text-xs file:bg-gray-800 file:border-0 file:text-white file:px-4 file:py-2 bg-slate-100 dark:text-black mr-2 rounded-full w-full" />
+                        <span class="text-sm text-red-500">{{ errors.file }}</span>
                         <div class="mt-4">
                             <BreezeLabel for="requirement" value="File type" />
                             <select id="requirement" v-model="fileform.requirement" required
@@ -104,10 +112,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/4 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">New student</span>
                     <form @submit.prevent="form.put(route('students.update', student), {
-                            onSuccess: () => this.showEditModal = errors.length ? true : false,
-                            preserveState: true,
-                            preserveScroll: true,
-                        })">
+                        onSuccess: () => this.showEditModal = errors.length ? true : false,
+                        preserveState: true,
+                        preserveScroll: true,
+                    })">
                         <div>
                             <BreezeLabel for="first_name" value="First name" />
                             <BreezeInput id="first_name" type="text" class="mt-1 block w-full" v-model="form.first_name"
@@ -182,10 +190,10 @@
                         <button @click="this.showDeleteModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button :disabled="this.loading" @click.stop="this.$inertia.delete(route('students.destroy', student.id), {
-                                onSuccess: () => { this.showDeleteModal = false, this.loading = false },
-                                onStart: () => this.loading = true,
-                                preserveScroll: true
-                            })"
+                            onSuccess: () => { this.showDeleteModal = false, this.loading = false },
+                            onStart: () => this.loading = true,
+                            preserveScroll: true
+                        })"
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm"
                             :class="{ 'opacity-25': this.loading }">Delete</button>
                     </div>

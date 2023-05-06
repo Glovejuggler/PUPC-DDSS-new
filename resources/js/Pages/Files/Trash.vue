@@ -35,17 +35,17 @@
                     Files
                 </div>
                 <!-- Grid -->
-                <div class="grid gap-2 grid-cols-6 px-4 mt-8">
+                <div class="grid gap-2 lg:grid-cols-6 md:grid-cols-5 grid-cols-3 px-4 mt-8">
                     <div v-for="(file, index) in visibleFiles.data" @contextmenu.prevent="contextMenu" :key="index"
                         @click="$event.target.focus()" tabindex="-1" @focusin="fileSelect(file, index)" @focusout="unselect"
                         :id="`file${file.id}`"
-                        class="w-full h-56 overflow-hidden border border-black/30 focus:ring-blue-700 focus:ring-1 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm relative select-none cursor-pointer">
-                        <div class="w-full h-48 overflow-hidden">
-                            <img :src="`${file.img_source}`" class="object-cover h-48 w-full bg-white dark:bg-zinc-900"
-                                alt="">
+                        class="w-full overflow-hidden border border-black/30 focus:ring-blue-700 focus:ring-1 dark:border-zinc-900 [&>div:nth-child(2)]:dark:focus:bg-blue-900 [&>div:nth-child(2)]:focus:bg-blue-100 rounded-lg text-sm select-none cursor-pointer">
+                        <div class="w-full h-48 overflow-hidden flex justify-center bg-white dark:bg-zinc-900">
+                            <img @dragstart.prevent="" loading="lazy" :src="`${file.img_source}`"
+                                class="object-cover h-48 w-max" :alt="file.name">
                         </div>
                         <div
-                            class="absolute bottom-0 bg-white dark:bg-zinc-900 dark:text-white text-sm w-full px-4 py-3 overflow-hidden text-ellipsis whitespace-nowrap">
+                            class="bg-white dark:bg-zinc-900 dark:text-white text-sm w-full px-4 py-3 overflow-hidden text-ellipsis whitespace-nowrap">
                             {{ file.name }}
                         </div>
                     </div>
@@ -110,10 +110,10 @@
             class="bg-white dark:bg-zinc-800 rounded-lg shadow-md shadow-black/30 fixed w-48 z-50 py-2 origin-top">
             <div v-if="selectedFile">
                 <button @mousedown.prevent="$inertia.visit(route('files.restore', this.selectedFile.id), {
-                        preserveScroll: true,
-                        onStart: () => this.loading = true,
-                        onSuccess: () => this.loading = false
-                    })" class=" dark:text-white flex items-center justify-start w-full p-2 text-sm hover:bg-black/10 dark:hover:bg-white/10
+                    preserveScroll: true,
+                    onStart: () => this.loading = true,
+                    onSuccess: () => this.loading = false
+                })" class=" dark:text-white flex items-center justify-start w-full p-2 text-sm hover:bg-black/10 dark:hover:bg-white/10
                 cursor-pointer" :disabled="this.loading">
                     <i class="fa-solid fa-clock-rotate-left w-8"></i>Restore
                 </button>
@@ -123,10 +123,10 @@
             </div>
             <div v-if="selectedFolder">
                 <button @mousedown.prevent="$inertia.visit(route('folders.restore', this.selectedFolder.id), {
-                        preserveScroll: true,
-                        onStart: () => this.loading = true,
-                        onSuccess: () => this.loading = false
-                    })" :disabled="this.loading"
+                    preserveScroll: true,
+                    onStart: () => this.loading = true,
+                    onSuccess: () => this.loading = false
+                })" :disabled="this.loading"
                     class="dark:text-white flex items-center justify-start w-full p-2 text-sm hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer">
                     <i class="fa-solid fa-clock-rotate-left w-8"></i>Restore
                 </button>
@@ -156,8 +156,8 @@
                         <button @click="this.showDeleteFileModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="this.$inertia.visit(route('files.atomize', this.temp.id), {
-                                onSuccess: () => { this.showDeleteFileModal = false }
-                            })
+                            onSuccess: () => { this.showDeleteFileModal = false }
+                        })
                             "
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
@@ -190,8 +190,8 @@
                         <button @click="this.showDeleteFolderModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="this.$inertia.visit(route('folders.atomize', this.temp.id), {
-                                onSuccess: () => { this.showDeleteFolderModal = false }
-                            })
+                            onSuccess: () => { this.showDeleteFolderModal = false }
+                        })
                             "
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>

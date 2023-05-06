@@ -97,6 +97,7 @@ class ShareController extends Controller
         return inertia('Share/Index', [
             'files' => $files,
             'folders' => $folders,
+            'folder' => (int)$id ?? null
         ]);
     }
 
