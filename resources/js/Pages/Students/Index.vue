@@ -98,10 +98,18 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/4 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">New student</span>
                     <form @submit.prevent="newform.post(route('students.store'), {
-                            onSuccess: () => this.showNewStudentModal = errors.length ? true : false,
-                            preserveState: true,
-                            preserveScroll: true,
-                        })">
+                        onSuccess: () => {
+                            if (!errors.length) {
+                                this.showNewStudentModal = false
+                                newform.reset()
+                            } else {
+                                this.showNewStudentModal = true
+                            }
+                            this.visibleStudents = this.students
+                        },
+                        preserveState: true,
+                        preserveScroll: true,
+                    })">
                         <div>
                             <BreezeLabel for="first_name" value="First name" />
                             <BreezeInput id="first_name" type="text" class="mt-1 block w-full" v-model="newform.first_name"

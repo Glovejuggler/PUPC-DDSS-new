@@ -531,7 +531,13 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         onSubmit: _cache[12] || (_cache[12] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function ($event) {
           return $setup.newform.post(_ctx.route('students.store'), {
             onSuccess: function onSuccess() {
-              return _this.showNewStudentModal = $props.errors.length ? true : false;
+              if (!$props.errors.length) {
+                _this.showNewStudentModal = false;
+                $setup.newform.reset();
+              } else {
+                _this.showNewStudentModal = true;
+              }
+              _this.visibleStudents = _this.students;
             },
             preserveState: true,
             preserveScroll: true
