@@ -479,7 +479,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     "class": "block rounded-lg dark:bg-zinc-800 text-sm dark:text-white text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm w-full"
   }, [_hoisted_7, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($props.requirements, function (requirement) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
-      value: requirement.name
+      value: requirement.id
     }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(requirement.name), 9 /* TEXT, PROPS */, _hoisted_8);
   }), 256 /* UNKEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $data.form.filterBy]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Students "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_InfiniteScroll, {
     loadMore: $options.loadMoreStudents

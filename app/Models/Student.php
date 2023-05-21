@@ -72,7 +72,7 @@ class Student extends Model
             }
         })->when($filters['filterBy'] ?? null, function ($query, $filterBy) {
             $query->whereHas('files', function ($query) use($filterBy) {
-                $query->where('type', $filterBy);
+                $query->where('requirement_id', $filterBy);
             });
         });
     }

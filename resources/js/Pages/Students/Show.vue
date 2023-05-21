@@ -31,15 +31,20 @@
             <div class="font-bold uppercase dark:text-white">
                 {{ key }}
             </div>
-            <div v-for="item in data" class="flex justify-between items-center w-64">
+            <div v-for="item in data" class="flex justify-between items-center w-1/4">
                 <div>
                     <i class="fa-solid w-6"
                         :class="studentHasFile(item) ? 'fa-check text-green-500' : 'fa-xmark text-red-500'"></i><span
                         class="dark:text-white">{{ item.name }}</span>
                 </div>
-                <a :href="route('studentfiles.download', studentHasFile(item).id)" v-if="studentHasFile(item)"
-                    class="inline-flex justify-center items-center w-8 h-8 hover:bg-black/10 dark:hover:bg-white/20 rounded-full ml-2"><i
-                        class="fa-regular fa-circle-down dark:text-white"></i></a>
+                <div>
+                    <a :href="route('studentfiles.download', studentHasFile(item).id)" v-if="studentHasFile(item)"
+                        class="inline-flex justify-center items-center w-8 h-8 hover:bg-black/10 dark:hover:bg-white/20 rounded-full ml-2"><i
+                            class="fa-regular fa-circle-down dark:text-white"></i></a>
+                    <a :href="route('studentfiles.show', studentHasFile(item))" v-if="studentHasFile(item)" target="_blank"
+                        class="inline-flex justify-center items-center w-8 h-8 hover:bg-black/10 dark:hover:bg-white/20 rounded-full ml-2"><i
+                            class="fa-regular fa-eye dark:text-white"></i></a>
+                </div>
             </div>
         </div>
     </div>
@@ -233,7 +238,7 @@ export default {
     },
     methods: {
         studentHasFile(requirement) {
-            return this.student.files.find((file) => file.type === requirement.name)
+            return this.student.files.find((file) => file.requirement_id === requirement.id)
         },
         uploadFile() {
             this.showNewFileModal = true

@@ -83,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/student/file/store', [StudentFileController::class, 'store'])->name('studentfiles.store');
     Route::get('/student/file/download/{id}', [StudentFileController::class, 'download'])->name('studentfiles.download');
+    Route::get('/student/file/{studentFile}', [StudentFileController::class, 'show'])->name('studentfiles.show');
 
     Route::post('/share/file/{id}', [ShareController::class, 'store'])->name('share');
     Route::get('/shared/{id?}', [ShareController::class, 'index'])->name('share.index');

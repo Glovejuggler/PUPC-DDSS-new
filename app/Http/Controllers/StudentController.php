@@ -78,12 +78,12 @@ class StudentController extends Controller
             abort(403);
         }
         
-        $submitted = StudentFile::where('student_id',$student->id)->pluck('type');
+        $submitted = StudentFile::where('student_id',$student->id)->pluck('requirement_id');
 
         return inertia('Students/Show', [
             'student' => Student::with('files')->find($student->id),
             'requirements' => Requirement::all()->groupBy('category'),
-            'reqops' => Requirement::whereNotIn('name',$submitted)->get()
+            'reqops' => Requirement::whereNotIn('id',$submitted)->get()
         ]);
     }
 

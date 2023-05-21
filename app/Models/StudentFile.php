@@ -10,8 +10,7 @@ class StudentFile extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category',
-        'type',
+        'requirement_id',
         'path',
         'name',
         'student_id'

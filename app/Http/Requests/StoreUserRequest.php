@@ -26,6 +26,7 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'first_name' => 'required',
+            'middle_nane' => 'required',
             'last_name' => 'required',
             'birthday' => 'date|required',
             'address' => 'required',

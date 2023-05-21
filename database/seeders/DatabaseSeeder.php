@@ -18,14 +18,26 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         DB::table('users')->insert([
-            'first_name' => 'Glove',
-            'last_name' => 'Juggler',
-            'email' => 'aelizaga77@gmail.com',
-            'password' => Hash::make('admin123'),
-            'birthday' => Carbon::parse('02-10-2001'),
-            'role_id' => 1,
-            'address' => 'Calauan, Laguna',
-            'contact' => '09554881539'
+            [
+                'first_name' => 'Admin',
+                'last_name' => 'Admin',
+                'email' => 'admin@admin.com',
+                'password' => Hash::make('admin123'),
+                'birthday' => Carbon::parse('01-10-1950'),
+                'role_id' => 1,
+                'address' => 'Pilipinas',
+                'contact' => '000'
+            ],
+            [
+                'first_name' => 'Registrar',
+                'last_name' => 'Registrar',
+                'email' => 'registrar@registrar.com',
+                'password' => Hash::make('admin123'),
+                'birthday' => Carbon::parse('01-10-1950'),
+                'role_id' => 2,
+                'address' => 'Pilipinas',
+                'contact' => '000'
+            ]
         ]);
 
         DB::table('roles')->insert([

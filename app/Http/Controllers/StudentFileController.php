@@ -55,13 +55,12 @@ class StudentFileController extends Controller
         $requirement = Requirement::find($request->requirement);
 
         $student = Student::find($request->student_id);
-        $name = $requirement->name.'_'.$student->full_name.'.'.pathinfo($request->file->getClientOriginalName(), PATHINFO_EXTENSION);
+        $name = $requirement->name.'_'.$student->formal_full_name.'.'.pathinfo($request->file->getClientOriginalName(), PATHINFO_EXTENSION);
 
-        $path = $request->file->storeAs($student->year.'/'.$student->full_name, $name, 'public');
+        $path = $request->file->storeAs($student->year.'/'.$student->formal_full_name, $name);
 
         StudentFile::create([
-            'category' => $requirement->category,
-            'type' => $requirement->name,
+            'requirement_id' => $request->requirement,
             'path' => $path,
             'name' => $name,
             'student_id' => $request->student_id,
@@ -78,7 +77,7 @@ class StudentFileController extends Controller
      */
     public function show(StudentFile $studentFile)
     {
-        //
+        return response()->file(Storage::path($studentFile->path));
     }
 
     /**
@@ -126,6 +125,6 @@ class StudentFileController extends Controller
         
         $file = StudentFile::find($id);
 
-        return Storage::disk('public')->download($file->path, $file->name);
+        return Storage::download($file->path, $file->name);
     }
 }

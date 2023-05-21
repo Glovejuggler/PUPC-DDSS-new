@@ -43,7 +43,7 @@
             <select id="filterBy" v-model="form.filterBy"
                 class="block rounded-lg dark:bg-zinc-800 text-sm dark:text-white text-gray-700 border-gray-300 dark:border-white/30 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 shadow-sm w-full">
                 <option value="">All</option>
-                <option v-for="requirement in requirements" :value="requirement.name">{{ requirement.name }}</option>
+                <option v-for="requirement in requirements" :value="requirement.id">{{ requirement.name }}</option>
             </select>
         </div>
     </div>
