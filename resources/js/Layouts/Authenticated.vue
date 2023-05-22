@@ -4,13 +4,23 @@ import BreezeDropdown from '@/Components/Dropdown.vue';
 import BreezeDropdownLink from '@/Components/DropdownLink.vue';
 import BreezeResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/inertia-vue3';
+import ToastList from '@/Components/ToastList.vue';
 
 const showingNavigationDropdown = ref(false);
+const dark = ref(localStorage.getItem('theme') === 'dark')
 
+const toggleDarkMode = () => {
+    if (!dark.value) {
+        localStorage.setItem('theme', 'dark')
+    } else {
+        localStorage.removeItem('theme')
+    }
+    dark.value = !dark.value
+}
 </script>
 
 <template>
-    <div :class="dark ? 'dark' : ''">
+    <div :class="{ 'dark': dark }">
         <div
             class="inset-y-0 left-0 fixed bg-gray-800 dark:bg-zinc-900 w-64 lg:flex flex-col hidden py-6 duration-300 ease-in-out">
             <div class="text-white px-4 font-bold text-lg">
@@ -162,34 +172,3 @@ const showingNavigationDropdown = ref(false);
 
     <ToastList />
 </template>
-
-<script>
-import ToastList from '@/Components/ToastList.vue';
-import moment from 'moment'
-
-export default {
-    data() {
-        return {
-            dark: localStorage.getItem('theme') === 'dark'
-        }
-    },
-    methods: {
-        toggleDarkMode() {
-            if (!this.dark) {
-                localStorage.setItem('theme', 'dark')
-            } else {
-                localStorage.removeItem('theme')
-            }
-            this.dark = !this.dark
-        }
-    },
-    components: {
-        ToastList
-    },
-    computed: {
-        isBirthday() {
-            return moment(String(this.$page.props.auth.user.birthday)).format('MMMM D') == moment().format('MMMM D')
-        }
-    }
-}
-</script>

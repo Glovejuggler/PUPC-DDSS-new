@@ -1,3 +1,31 @@
+<script setup>
+import debounce from 'lodash/debounce';
+import { ref, onUnmounted, onMounted } from 'vue';
+
+const props = defineProps({
+    loadMore: Function
+})
+
+const loading = ref(false)
+
+let doThis = debounce(() => {
+    let pixelsFromBottom = document.documentElement.offsetHeight - document.documentElement.scrollTop - (window.innerHeight ?? screen.height);
+    if (pixelsFromBottom < 200 && !loading.value) {
+        loading.value = true;
+        props.loadMore().finally(() => loading.value = false);
+    }
+}, 100)
+
+
+onMounted(() => {
+    window.addEventListener('scroll', doThis)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', doThis)
+})
+</script>
+
 <template>
     <div>
         <slot></slot>
@@ -6,27 +34,3 @@
         <i class="fa-solid fa-spinner animate-spin text-3xl text-gray-800 dark:text-white/50"></i>
     </div>
 </template>
-
-<script>
-import debounce from 'lodash/debounce';
-
-export default {
-    props: {
-        loadMore: Function,
-    },
-    data() {
-        return {
-            loading: false
-        }
-    },
-    mounted() {
-        window.addEventListener('scroll', debounce((e) => {
-            let pixelsFromBottom = document.documentElement.offsetHeight - document.documentElement.scrollTop - (window.innerHeight ?? screen.height);
-            if (pixelsFromBottom < 200 && !this.loading) {
-                this.loading = true;
-                this.loadMore().finally(() => this.loading = false);
-            }
-        }, 100))
-    },
-}
-</script>
