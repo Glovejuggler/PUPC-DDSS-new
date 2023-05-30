@@ -82,8 +82,8 @@ class StudentController extends Controller
 
         return inertia('Students/Show', [
             'student' => Student::with('files')->find($student->id),
-            'requirements' => Requirement::all()->groupBy('category'),
-            'reqops' => Requirement::whereNotIn('id',$submitted)->get()
+            'requirements' => Requirement::with('sub')->main()->get()->groupBy('category'),
+            'reqops' => Requirement::whereNotIn('id', $submitted)->whereDoesntHave('sub')->get()
         ]);
     }
 

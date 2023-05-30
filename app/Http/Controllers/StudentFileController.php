@@ -111,7 +111,10 @@ class StudentFileController extends Controller
      */
     public function destroy(StudentFile $studentFile)
     {
-        //
+        Storage::delete($studentFile->path);
+        $studentFile->delete();
+
+        return redirect()->back();
     }
 
     /**

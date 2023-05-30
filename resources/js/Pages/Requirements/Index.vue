@@ -36,18 +36,34 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="text-sm border-b dark:border-white/30" v-for="requirement in requirements">
-                    <td class="py-2 pl-4">{{ requirement.name }}</td>
-                    <td class="py-2">{{ requirement.category }}</td>
-                    <td class="py-2">
-                        <div class="space-x-2">
-                            <button type="button" @click="edit(requirement)"
-                                class="px-4 py-1 text-xs border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white active:bg-blue-700 active:border-blue-700">Edit</button>
-                            <button type="button" @click="deleteData(requirement)"
-                                class="px-4 py-1 text-xs border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white active:bg-red-700 active:border-red-700">Delete</button>
-                        </div>
-                    </td>
-                </tr>
+                <template v-for="requirement in requirements">
+                    <tr class="text-sm border-b dark:border-white/30">
+                        <td class="py-2 pl-4">{{ requirement.name }}</td>
+                        <td class="py-2">{{ requirement.category }}</td>
+                        <td class="py-2">
+                            <div class="space-x-2">
+                                <button type="button" @click="edit(requirement)"
+                                    class="px-4 py-1 text-xs border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white active:bg-blue-700 active:border-blue-700">Edit</button>
+                                <button type="button" @click="deleteData(requirement)"
+                                    class="px-4 py-1 text-xs border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white active:bg-red-700 active:border-red-700">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <template v-if="requirement.sub.length">
+                        <tr class="text-sm border-b dark:border-white/30" v-for="requirement in requirement.sub">
+                            <td class="py-2 pl-4">{{ requirement.name }}</td>
+                            <td class="py-2">{{ requirement.category }}</td>
+                            <td class="py-2">
+                                <div class="space-x-2">
+                                    <button type="button" @click="edit(requirement)"
+                                        class="px-4 py-1 text-xs border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white active:bg-blue-700 active:border-blue-700">Edit</button>
+                                    <button type="button" @click="deleteData(requirement)"
+                                        class="px-4 py-1 text-xs border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white active:bg-red-700 active:border-red-700">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </template>
             </tbody>
         </table>
     </div>
@@ -62,12 +78,9 @@
                 @click.self="this.showNewRequirementModal = false">
                 <div
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/4 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
-                    <span class="font-bold text-lg block mb-2">New requirement</span>
-                    <form @submit.prevent="form.post(route('requirements.store'), {
-                            onSuccess: () => this.showNewRequirementModal = errors.length ? true : false,
-                            preserveState: false,
-                            preserveScroll: true
-                        })">
+                    <span class="font-bold text-lg block mb-2">{{ form.parent_requirement_id === null ? 'New requirement' :
+                        'New sub-requirement for ' + editRequirement.name }}</span>
+                    <form @submit.prevent="formSubmit">
                         <div>
                             <BreezeLabel for="name" value="Requirement" />
                             <BreezeInput id="name" type="text" class="mt-1 block w-full" v-model="form.name" required
@@ -112,12 +125,12 @@
                 @click.self="this.showEditModal = false">
                 <div
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/4 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
-                    <span class="font-bold text-lg block mb-2">New requirement</span>
+                    <span class="font-bold text-lg block mb-2">Edit requirement</span>
                     <form @submit.prevent="editForm.put(route('requirements.update', this.editRequirement.id), {
-                            onSuccess: () => this.showEditModal = errors.length ? true : false,
-                            preserveState: false,
-                            preserveScroll: true
-                        })">
+                        onSuccess: () => this.showEditModal = errors.length ? true : false,
+                        preserveState: false,
+                        preserveScroll: true
+                    })">
                         <div>
                             <BreezeLabel for="name" value="Requirement" />
                             <BreezeInput id="name" type="text" class="mt-1 block w-full" v-model="editForm.name" required
@@ -134,6 +147,12 @@
                                 <option value="Entrance Credentials">Entrance Credentials</option>
                             </select>
                             <span v-if="errors.category" class="text-xs text-red-500">{{ errors.category }}</span>
+                        </div>
+
+                        <div class="mt-4 text-sm" v-if="editRequirement.parent_requirement_id === null">
+                            <span @click="addSub(editRequirement)" class="text-blue-500 hover:underline cursor-pointer">
+                                Add sub-requirements
+                            </span>
                         </div>
 
                         <div class="mt-6 flex justify-end space-x-2">
@@ -172,10 +191,10 @@
                         <button @click="this.showDeleteModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="this.$inertia.delete(route('requirements.destroy', this.deleteRequirement.id), {
-                                onSuccess: () => { this.showDeleteModal = false, this.deleteRequirement = '', this.loading = false },
-                                onStart: () => this.loading = true,
-                                preserveScroll: true
-                            })" :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
+                            onSuccess: () => { this.showDeleteModal = false, this.deleteRequirement = '', this.loading = false },
+                            onStart: () => this.loading = true,
+                            preserveScroll: true
+                        })" :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
                 </div>
@@ -226,10 +245,16 @@ export default {
         deleteData(data) {
             this.deleteRequirement = data
             this.showDeleteModal = true
+        },
+        addSub(data) {
+            this.form.parent_requirement_id = data.id
+            this.showNewRequirementModal = true
+            this.showEditModal = false
         }
     },
     setup() {
         const form = useForm({
+            parent_requirement_id: null,
             category: '',
             name: ''
         })
@@ -239,7 +264,22 @@ export default {
             name: ''
         });
 
-        return { form, editForm }
+        function formSubmit() {
+            form.post(route('requirements.store'), {
+                onSuccess: () => {
+                    if (errors.length) {
+                        this.showNewRequirementModal = true
+                    } else {
+                        this.showNewRequirementModal = false
+                        form.reset()
+                    }
+                },
+                preserveState: false,
+                preserveScroll: true
+            })
+        }
+
+        return { form, editForm, formSubmit }
     }
 }
 </script>

@@ -15,6 +15,7 @@ class CreateRequirementsTable extends Migration
     {
         Schema::create('requirements', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('parent_requirement_id')->nullable();
             $table->string('category');
             $table->string('name');
             $table->timestamps();

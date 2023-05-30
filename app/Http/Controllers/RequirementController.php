@@ -20,7 +20,7 @@ class RequirementController extends Controller
         }
 
         return inertia('Requirements/Index', [
-            'requirements' => Requirement::all(),
+            'requirements' => Requirement::with('sub')->main()->get(),
         ]);
     }
 
@@ -47,11 +47,13 @@ class RequirementController extends Controller
         }
 
         $request->validate([
+            'parent_requirement_id' => 'nullable',
             'category' => 'required',
             'name' => 'required'
         ]);
 
         Requirement::create([
+            'parent_requirement_id' => $request->parent_requirement_id,
             'category' => $request->category,
             'name' => $request->name,
         ]);
