@@ -192,6 +192,16 @@
             <div v-if="showDeleteModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-md"></div>
         </Transition>
     </div>
+
+    <!-- For automation -->
+    <!-- Dev use only hehez -->
+    <div class="px-4" v-if="$page.props.auth.user.first_name === 'Auto'">
+        <button onclick="document.getElementById('autoFile').click()"
+            class="w-1/2 py-5 rounded-lg bg-blue-500 text-white font-bold uppercase hover:bg-blue-600 active:bg-blue-800 duration-300 ease-in-out">Auto</button>
+        <input type="file" name="file" id="autoFile" hidden @input="automatedForm.file = $event.target.files" @change="automatedForm.post(route('studentfiles.automate'), {
+            onSuccess: () => automatedForm.reset('file')
+        })" multiple />
+    </div>
 </template>
 
 <script>
@@ -239,7 +249,12 @@ export default {
             course: props.student.course,
         })
 
-        return { form, fileform }
+        const automatedForm = useForm({
+            file: [],
+            student_id: props.student.id
+        })
+
+        return { form, fileform, automatedForm }
     },
     computed: {
         years() {

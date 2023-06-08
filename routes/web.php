@@ -85,6 +85,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/student/file/download/{id}', [StudentFileController::class, 'download'])->name('studentfiles.download');
     Route::get('/student/file/{studentFile}', [StudentFileController::class, 'show'])->name('studentfiles.show');
     Route::delete('student/file/{studentFile}/delete', [StudentFileController::class, 'destroy'])->name('studentfiles.destroy');
+    // For automation of classification of files
+    Route::post('/auto/store', [StudentFileController::class, 'automate'])->name('studentfiles.automate');
 
     Route::post('/share/file/{id}', [ShareController::class, 'store'])->name('share');
     Route::get('/shared/{id?}', [ShareController::class, 'index'])->name('share.index');

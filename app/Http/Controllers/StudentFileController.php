@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\Requirement;
 use App\Models\StudentFile;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -129,5 +130,58 @@ class StudentFileController extends Controller
         $file = StudentFile::find($id);
 
         return Storage::download($file->path, $file->name);
+    }
+
+    /**
+     * Too lazy so I made this :omegalul:
+     */
+    public function automate(Request $request)
+    {
+        $student = Student::find($request->student_id);
+        $count = 0;
+
+        foreach ($request->file as $file) {
+            $fileName = Str::beforeLast($file->getClientOriginalName(), '.pdf');
+            $requirement;
+            $name;
+            $path;
+
+            if ($fileName == 'sar') {
+                $requirement = Requirement::find(1);
+            } else if ($fileName == 'good moral') {
+                $requirement = Requirement::find(3);
+            } else if ($fileName == 'med') {
+                $requirement = Requirement::find(4);
+            } else if ($fileName == 'psa') {
+                $requirement = Requirement::find(5);
+            } else if ($fileName == 'f137') {
+                $requirement = Requirement::find(6);
+            } else if ($fileName == 'g10') {
+                $requirement = Requirement::find(10);
+            } else if ($fileName == 'g11') {
+                $requirement = Requirement::find(11);
+            } else if ($fileName == 'g12') {
+                $requirement = Requirement::find(12);
+            } else if ($fileName == 'cert of non-issuance') {
+                $requirement = Requirement::find(13);
+            } else {
+                continue;
+            }
+            
+            if (!StudentFile::where('student_id', $student->id)->where('requirement_id', $requirement->id)->exists()) {
+                $name = $requirement->name.'_'.$student->formal_full_name.'.'.pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
+                $path = $file->storeAs($student->year.'/'.$student->formal_full_name, $name);
+                StudentFile::create([
+                    'requirement_id' => $requirement->id,
+                    'path' => $path,
+                    'name' => $name,
+                    'student_id' => $request->student_id,
+                ]);
+
+                $count += 1;
+            }
+        }
+
+        return redirect()->back()->withFlash(['success', $count.' '.Str::plural('file', $count).' uploaded']);
     }
 }

@@ -217,9 +217,14 @@ __webpack_require__.r(__webpack_exports__);
       year: props.student.year,
       course: props.student.course
     });
+    var automatedForm = (0,_inertiajs_inertia_vue3__WEBPACK_IMPORTED_MODULE_2__.useForm)({
+      file: [],
+      student_id: props.student.id
+    });
     return {
       form: form,
-      fileform: fileform
+      fileform: fileform,
+      automatedForm: automatedForm
     };
   },
   computed: {
@@ -661,6 +666,15 @@ var _hoisted_40 = {
   key: 0,
   "class": "fixed inset-0 z-40 bg-black/50 backdrop-blur-md"
 };
+var _hoisted_41 = {
+  key: 0,
+  "class": "px-4"
+};
+var _hoisted_42 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  onclick: "document.getElementById('autoFile').click()",
+  "class": "w-1/2 py-5 rounded-lg bg-blue-500 text-white font-bold uppercase hover:bg-blue-600 active:bg-blue-800 duration-300 ease-in-out"
+}, "Auto", -1 /* HOISTED */);
+
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _this = this;
   var _component_Head = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Head");
@@ -939,7 +953,23 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return [$data.showDeleteModal ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_40)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
     }),
     _: 1 /* STABLE */
-  })])], 64 /* STABLE_FRAGMENT */);
+  })]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" For automation "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Dev use only hehez "), _ctx.$page.props.auth.user.first_name === 'Auto' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_41, [_hoisted_42, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    type: "file",
+    name: "file",
+    id: "autoFile",
+    hidden: "",
+    onInput: _cache[20] || (_cache[20] = function ($event) {
+      return $setup.automatedForm.file = $event.target.files;
+    }),
+    onChange: _cache[21] || (_cache[21] = function ($event) {
+      return $setup.automatedForm.post(_ctx.route('studentfiles.automate'), {
+        onSuccess: function onSuccess() {
+          return $setup.automatedForm.reset('file');
+        }
+      });
+    }),
+    multiple: ""
+  }, null, 32 /* HYDRATE_EVENTS */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 64 /* STABLE_FRAGMENT */);
 }
 
 /***/ }),
