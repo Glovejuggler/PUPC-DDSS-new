@@ -345,7 +345,7 @@ var _hoisted_4 = {
 };
 var _hoisted_5 = {
   colspan: "2",
-  "class": "px-6 py-2 font-medium"
+  "class": "px-6 py-2 font-medium dark:text-white"
 };
 var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
   "class": "fa-solid ml-2 fa-angle-down"
@@ -372,7 +372,7 @@ var _hoisted_14 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElement
 var _hoisted_15 = [_hoisted_14];
 var _hoisted_16 = ["onClick"];
 var _hoisted_17 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
-  "class": "fa-solid fa-trash"
+  "class": "fa-solid fa-trash dark:text-white"
 }, null, -1 /* HOISTED */);
 var _hoisted_18 = [_hoisted_17];
 var _hoisted_19 = {
@@ -398,7 +398,7 @@ var _hoisted_26 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElement
 var _hoisted_27 = [_hoisted_26];
 var _hoisted_28 = ["onClick"];
 var _hoisted_29 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
-  "class": "fa-solid fa-trash"
+  "class": "fa-solid fa-trash dark:text-white"
 }, null, -1 /* HOISTED */);
 var _hoisted_30 = [_hoisted_29];
 var _hoisted_31 = {

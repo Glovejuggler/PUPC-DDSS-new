@@ -32,7 +32,7 @@ const deleteFile = (data, req) => {
                     <template v-for="item in data">
                         <Expansion v-if="item.sub.length">
                             <template #trigger>
-                                <th colspan="2" class="px-6 py-2 font-medium">{{ item.name }}<i
+                                <th colspan="2" class="px-6 py-2 font-medium dark:text-white">{{ item.name }}<i
                                         class="fa-solid ml-2 fa-angle-down"></i></th>
                             </template>
 
@@ -57,7 +57,7 @@ const deleteFile = (data, req) => {
                                             <button v-if="studentHasFile(item)"
                                                 @click="deleteFile(studentHasFile(item), item)"
                                                 class="inline-flex justify-center items-center w-8 h-8 hover:bg-black/10 dark:hover:bg-white/20 rounded-full ml-2"><i
-                                                    class="fa-solid fa-trash"></i></button>
+                                                    class="fa-solid fa-trash dark:text-white"></i></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -83,7 +83,7 @@ const deleteFile = (data, req) => {
                                                 class="fa-regular fa-eye dark:text-white"></i></a>
                                         <button v-if="studentHasFile(item)" @click="deleteFile(studentHasFile(item), item)"
                                             class="inline-flex justify-center items-center w-8 h-8 hover:bg-black/10 dark:hover:bg-white/20 rounded-full ml-2"><i
-                                                class="fa-solid fa-trash"></i></button>
+                                                class="fa-solid fa-trash dark:text-white"></i></button>
                                     </div>
                                 </td>
                             </tr>

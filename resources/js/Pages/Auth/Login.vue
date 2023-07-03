@@ -27,7 +27,11 @@ const submit = () => {
 <template>
     <BreezeGuestLayout>
 
-        <Head title="Log in" />
+        <Head>
+            <title>
+                Login
+            </title>
+        </Head>
 
         <BreezeValidationErrors class="mb-4" />
 

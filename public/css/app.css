@@ -925,6 +925,9 @@ select {
 .w-4 {
   width: 1rem;
 }
+.w-32 {
+  width: 8rem;
+}
 .w-96 {
   width: 24rem;
 }
@@ -1398,6 +1401,10 @@ select {
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
+}
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
 }
 .text-xl {
   font-size: 1.25rem;
