@@ -15,7 +15,7 @@ class RequirementController extends Controller
      */
     public function index()
     {
-        if (Auth::user()->role_id != 2) {
+        if (Auth::user()->role_id != 2 && Auth::user()->role_id != 3) {
             abort(403);
         }
 
@@ -42,7 +42,7 @@ class RequirementController extends Controller
      */
     public function store(Request $request)
     {
-        if (Auth::user()->role_id != 2) {
+        if (Auth::user()->role_id != 2 && Auth::user()->role_id != 3) {
             abort(403);
         }
 
@@ -92,7 +92,7 @@ class RequirementController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (Auth::user()->role_id != 2) {
+        if (Auth::user()->role_id != 2 && Auth::user()->role_id != 3) {
             abort(403);
         }
 
@@ -118,7 +118,7 @@ class RequirementController extends Controller
      */
     public function destroy($id)
     {
-        if (Auth::user()->role_id != 2) {
+        if (Auth::user()->role_id != 2 && Auth::user()->role_id != 3) {
             abort(403);
         }
 

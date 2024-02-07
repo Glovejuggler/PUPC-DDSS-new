@@ -17,6 +17,8 @@ class FolderController extends Controller
      */
     public function index(Request $request, $id = null)
     {
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+
         if ($request->wantsJson()) {
             return [
                 'folders' => Folder::admin()->folder(false, $id)->get(),
@@ -46,6 +48,7 @@ class FolderController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
         // dd($request);
         $request->validate([
             'name' => 'required',
@@ -112,6 +115,8 @@ class FolderController extends Controller
      */
     public function rename(Request $request, $id)
     {
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+
         $request->validate([
             'name' => 'required'
         ]);
@@ -151,6 +156,8 @@ class FolderController extends Controller
      */
     public function move(Request $request, $id)
     {
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+        
         $folder = Folder::find($id);
 
         if (Auth::id() != $folder->user_id && Auth::user()->role_id != 1 && Auth::user()->role_id != $folder->user->role_id) {
@@ -183,6 +190,8 @@ class FolderController extends Controller
      */
     public function destroy($id)
     {
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+
         $folder = Folder::find($id);
 
         if (Auth::id() != $folder->user_id && Auth::user()->role_id != 1 && Auth::user()->role_id != $folder->user->role_id) {
@@ -206,6 +215,8 @@ class FolderController extends Controller
      */
     public function atomize($id)
     {
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+
         $folder = Folder::onlyTrashed()->find($id);
 
         if (Auth::id() != $folder->user_id && Auth::user()->role_id != 1 && Auth::user()->role_id != $folder->user->role_id) {
@@ -236,6 +247,8 @@ class FolderController extends Controller
      */
     public function restore($id)
     {
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+        
         $folder = Folder::onlyTrashed()->find($id);
 
         if (Auth::id() != $folder->user_id && Auth::user()->role_id != 1 && Auth::user()->role_id != $folder->user->role_id) {

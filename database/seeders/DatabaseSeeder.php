@@ -47,6 +47,9 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Registrar'
             ],
+            [
+                'name' => 'Uploader'
+            ]
         ]);
     }
 }

@@ -40,7 +40,7 @@ class StudentFileController extends Controller
      */
     public function store(Request $request)
     {
-        if (Auth::user()->role_id != 2) {
+        if (Auth::user()->role_id != 2 || Auth::user()->role_id != 3) {
             abort(403);
         }
 
@@ -60,12 +60,19 @@ class StudentFileController extends Controller
 
         $path = $request->file->storeAs($student->year.'/'.$student->formal_full_name, $name);
 
-        StudentFile::create([
+        $new = StudentFile::create([
             'requirement_id' => $request->requirement,
             'path' => $path,
             'name' => $name,
             'student_id' => $request->student_id,
         ]);
+
+        activity()
+                ->causedBy(Auth::user())
+                ->performedOn($new)
+                ->withProperties(['name' => $new->name])
+                ->event('uploaded')
+                ->log(Auth::user()->role_id);
 
         return redirect()->back()->withFlash(['success',$requirement->name.' uploaded']);
     }
@@ -112,6 +119,10 @@ class StudentFileController extends Controller
      */
     public function destroy(StudentFile $studentFile)
     {
+        if (Auth::user()->role_id != 2) {
+            abort(403);
+        }
+
         Storage::delete($studentFile->path);
         $studentFile->delete();
 
@@ -183,5 +194,13 @@ class StudentFileController extends Controller
         }
 
         return redirect()->back()->withFlash(['success', $count.' '.Str::plural('file', $count).' uploaded']);
+    }
+
+    public function dashboard()
+    {
+        return inertia('Requirements/Dashboard', [
+            'requirements' => Requirement::whereDoesntHave('sub')->withCount('students')->get(),
+            'studentCount' => Student::all()->count()
+        ]);
     }
 }

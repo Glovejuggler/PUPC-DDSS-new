@@ -26,7 +26,7 @@ const toggleDarkMode = () => {
             <div class="text-white px-4 font-bold text-lg">
                 PUPC
             </div>
-            <div class="mt-8 text-white space-y-3">
+            <div class="mt-8 text-white space-y-3" v-if="$page.props.auth.user.role_id !== 3">
                 <Link :href="route('files')" class="px-6 py-2 hover:bg-white/10 flex w-[90%] rounded-r-full"
                     :class="route().current('files') ? 'dark:bg-zinc-700 bg-black/20' : ''">
                 <div>
@@ -34,7 +34,7 @@ const toggleDarkMode = () => {
                 </div>
                 </Link>
 
-                <Link v-if="this.$page.props.auth.user.role_id !== 1" :href="route('share.index')"
+                <Link v-if="$page.props.auth.user.role_id !== 1" :href="route('share.index')"
                     class="px-6 py-2 hover:bg-white/10 flex w-[90%] rounded-r-full"
                     :class="route().current('share.index') ? 'dark:bg-zinc-700 bg-black/20' : ''">
                 <div>
@@ -58,17 +58,24 @@ const toggleDarkMode = () => {
             </div>
             <hr class="opacity-25 mt-6">
             <div class="mt-6 text-white px-3 space-y-3">
-                <Link v-if="this.$page.props.auth.user.role_id === 1" :href="route('roles.index')"
+                <Link v-if="$page.props.auth.user.role_id === 1" :href="route('roles.index')"
                     :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('roles.*') }"
                     class="px-4 py-2 hover:bg-white/10 flex rounded-lg">
                 Roles
                 </Link>
-                <Link v-if="this.$page.props.auth.user.role_id === 1" :href="route('users.index')"
+                <Link v-if="$page.props.auth.user.role_id === 1" :href="route('users.index')"
                     :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('users.*') }"
                     class="px-4 py-2 hover:bg-white/10 flex rounded-lg">
                 Users
                 </Link>
-                <Link v-if="this.$page.props.auth.user.role_id === 2" :href="route('students.index')"
+                <Link v-if="$page.props.auth.user.role_id === 2 || $page.props.auth.user.role_id === 3"
+                    :href="route('registrar.dashboard')"
+                    :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('registrar.dashboard') }"
+                    class="px-4 py-2 hover:bg-white/10 flex rounded-lg">
+                Dashboard
+                </Link>
+                <Link v-if="$page.props.auth.user.role_id === 2 || $page.props.auth.user.role_id === 3"
+                    :href="route('students.index')"
                     :class="{ 'dark:bg-zinc-700 bg-black/20': route().current('students.*') }"
                     class="px-4 py-2 hover:bg-white/10 flex rounded-lg">
                 Students

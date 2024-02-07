@@ -42,6 +42,8 @@ class FileController extends Controller
             }
         }
 
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+
         $ancestors = Folder::with(['ancestor' => function ($q) {
             $q->with('ancestor');
         }])->find($id);
@@ -104,6 +106,7 @@ class FileController extends Controller
         //                     ->withQueryString();
         //     $folders = Folder::onlyTrashed()->with('user')->get();
         // }
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
 
         $files = File::onlyTrashed()
                         ->with(['user', 'shares'])
@@ -152,6 +155,8 @@ class FileController extends Controller
             'file' => 'required',
             'file.*' => 'mimes:csv,txt,xlsx,xls,pdf,jpg,jpeg,png,docx,doc,ppt,pptx,zip,rar|max:209715200'
         ]);
+
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
 
         // $folder = Folder::find($request->folder_id);
 
@@ -229,6 +234,8 @@ class FileController extends Controller
     {
         $file = File::find($id);
 
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+
         if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
             abort(403);
         }
@@ -256,6 +263,8 @@ class FileController extends Controller
     public function atomize($id)
     {
         $file = File::onlyTrashed()->find($id);
+
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
 
         if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
             abort(403);
@@ -293,6 +302,8 @@ class FileController extends Controller
     {
         $file = File::onlyTrashed()->with('user')->find($id);
 
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+
         if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
             abort(403);
         }
@@ -320,6 +331,8 @@ class FileController extends Controller
         ]);
         
         $file = File::find($id);
+
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
 
         if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
             abort(403);
@@ -356,6 +369,8 @@ class FileController extends Controller
     {
         $file = File::find($id);
 
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+
         if ($file->user->id != Auth::id() && Auth::user()->role_id != 1 && $file->user->role_id != Auth::user()->role_id) {
             abort(403);
         }
@@ -385,6 +400,8 @@ class FileController extends Controller
      */
     public function download($id)
     {
+        if (Auth::user()->role_id == 3) return redirect()->route('registrar.dashboard');
+
         $file = File::with(['shares' => function ($q) {
             $q->where(function($q) {
                 $q->where('subject_type', 'App\Models\User')

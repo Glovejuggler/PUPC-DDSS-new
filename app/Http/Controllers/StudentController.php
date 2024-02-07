@@ -18,7 +18,7 @@ class StudentController extends Controller
      */
     public function index(Request $request)
     {
-        if (Auth::user()->role_id != 2) {
+        if (Auth::user()->role_id != 2 && Auth::user()->role_id != 3) {
             abort(403);
         }
 
@@ -39,7 +39,7 @@ class StudentController extends Controller
                                     ->paginate(40)
                                     ->withQueryString(),
             'filters' => $request->only(['search', 'sortBy', 'filterBy']),
-            'requirements' => Requirement::all()
+            'requirements' => Requirement::whereDoesntHave('sub')->get()
         ]);
     }
 
@@ -63,6 +63,8 @@ class StudentController extends Controller
     {
         Student::create($request->validated());
 
+        
+
         return redirect()->back()->withFlash(['success', 'Student data created']);
     }
 
@@ -74,7 +76,7 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
-        if (Auth::user()->role_id != 2) {
+        if (Auth::user()->role_id != 2 && Auth::user()->role_id != 3) {
             abort(403);
         }
         

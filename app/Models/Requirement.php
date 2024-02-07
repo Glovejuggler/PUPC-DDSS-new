@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Student;
+use App\Models\StudentFile;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Requirement extends Model
 {
@@ -23,5 +25,10 @@ class Requirement extends Model
     public function sub()
     {
         return $this->hasMany(Requirement::class, 'parent_requirement_id');
+    }
+
+    public function students()
+    {
+        return $this->hasMany(StudentFile::class, 'requirement_id');
     }
 }

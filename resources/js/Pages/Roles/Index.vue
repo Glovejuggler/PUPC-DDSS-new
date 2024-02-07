@@ -41,7 +41,7 @@
                     <td class="py-2 pl-4">{{ role.name }}</td>
                     <td class="py-2">
                         <div class="space-x-2">
-                            <template v-if="role.id > 2">
+                            <template v-if="role.id > 3">
                                 <button type="button" @click="edit(role)"
                                     class="px-4 py-1 text-xs border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white active:bg-blue-700 active:border-blue-700">Edit</button>
                                 <button type="button" @click="deleteData(role)"
@@ -65,10 +65,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/6 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">New role</span>
                     <form @submit.prevent="form.post(route('roles.store'), {
-                            onSuccess: () => this.showNewRoleModal = errors.length ? true : false,
-                            preserveState: true,
-                            preserveScroll: true,
-                        })">
+                        onSuccess: () => this.showNewRoleModal = errors.length ? true : false,
+                        preserveState: true,
+                        preserveScroll: true,
+                    })">
 
                         <div class="mt-4">
                             <BreezeLabel for="name" value="Role name" />
@@ -104,10 +104,10 @@
                     class="relative bg-white dark:bg-zinc-900 w-full lg:w-1/6 h-auto max-h-[80%] p-6 rounded-lg dark:text-white overflow-auto">
                     <span class="font-bold text-lg block mb-2">New role</span>
                     <form @submit.prevent="editForm.put(route('roles.update', this.editRole.id), {
-                            onSuccess: () => this.showEditRoleModal = errors.length ? true : false,
-                            preserveState: true,
-                            preserveScroll: true,
-                        })">
+                        onSuccess: () => this.showEditRoleModal = errors.length ? true : false,
+                        preserveState: true,
+                        preserveScroll: true,
+                    })">
 
                         <div class="mt-4">
                             <BreezeLabel for="name" value="Role name" />
@@ -151,10 +151,10 @@
                         <button @click="this.showDeleteModal = false" type="button"
                             class="hover:underline text-sm px-3">Cancel</button>
                         <button @click.stop="this.$inertia.delete(route('roles.destroy', deleteRole.id), {
-                                onSuccess: () => { this.showDeleteModal = false, this.deleteRole = '', this.loading = false },
-                                onStart: () => this.loading = true,
-                                preserveScroll: true
-                            })" :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
+                            onSuccess: () => { this.showDeleteModal = false, this.deleteRole = '', this.loading = false },
+                            onStart: () => this.loading = true,
+                            preserveScroll: true
+                        })" :disabled="this.loading" :class="{ 'opacity-25': this.loading }"
                             class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-900 text-sm">Delete</button>
                     </div>
                 </div>
